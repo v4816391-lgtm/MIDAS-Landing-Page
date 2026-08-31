@@ -22,7 +22,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import ResearchInputPage from '@/pages/research-input';
+import ProcessingPage from '@/pages/processing';
+import ResearchWorkspace from '@/pages/research-workspace';
 import NotFound from '@/pages/not-found';
+import { loadSavedResearchResult, processResearchIdea } from '@/lib/processResearchIdea';
+import { sampleResearchIdea } from '@/data/researchData';
+import type { ResearchResult } from '@/data/researchData';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
 const queryClient = new QueryClient();
@@ -173,7 +179,7 @@ function RoadmapVisual() {
 
 function Home() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [, setLocation] = useLocation();
   useRevealOnScroll();
 
   useEffect(() => {
@@ -181,7 +187,7 @@ function Home() {
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
-  const openModal = () => { setModalOpen(true); setMenuOpen(false); };
+  const openResearch = () => { setLocation('/research'); setMenuOpen(false); };
   const navItems = [
     { label: 'How it Works', href: '#how-it-works' },
     { label: 'Features', href: '#features' },
@@ -195,7 +201,7 @@ function Home() {
           <Logo />
           <nav className="hidden items-center gap-8 md:flex" aria-label="Main navigation">
             {navItems.map((item) => <a key={item.href} href={item.href} className="text-sm text-[#607180] transition hover:text-[#17304a]" data-testid={`link-nav-${item.label.toLowerCase().replaceAll(' ', '-')}`}>{item.label}</a>)}
-            <button onClick={openModal} className="group flex items-center gap-2 rounded-full bg-[#17304a] px-4 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#244968]" data-testid="button-nav-start">
+            <button onClick={openResearch} className="group flex items-center gap-2 rounded-full bg-[#17304a] px-4 py-2.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#244968]" data-testid="button-nav-start">
               Start Researching <ArrowUpRight size={15} className="transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </button>
           </nav>
@@ -206,7 +212,7 @@ function Home() {
         {menuOpen && (
           <div className="absolute inset-x-4 top-16 rounded-2xl border border-[#d9e6e9] bg-[#fbfdfd] p-3 shadow-xl shadow-[#17304a]/10 md:hidden">
             {navItems.map((item) => <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="block rounded-xl px-4 py-3 text-sm font-medium text-[#526679] hover:bg-[#eef8f8] hover:text-[#17304a]" data-testid={`link-mobile-${item.label.toLowerCase().replaceAll(' ', '-')}`}>{item.label}</a>)}
-            <button onClick={openModal} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-[#17304a] px-4 py-3 text-sm font-semibold text-white" data-testid="button-mobile-start">Start Researching <ArrowUpRight size={15} /></button>
+            <button onClick={openResearch} className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-[#17304a] px-4 py-3 text-sm font-semibold text-white" data-testid="button-mobile-start">Start Researching <ArrowUpRight size={15} /></button>
           </div>
         )}
       </header>
@@ -228,7 +234,7 @@ function Home() {
                 MIDAS is a calm, structured guide for the first stretch of research — from the question that keeps tapping at you to a next step you can trust.
               </p>
               <div className="reveal reveal-delay-3 mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
-                <button onClick={openModal} className="group inline-flex items-center gap-3 rounded-full bg-[#17304a] px-5 py-3.5 text-sm font-semibold text-white shadow-xl shadow-[#17304a]/10 transition hover:-translate-y-1 hover:bg-[#244968]" data-testid="button-explore-idea">
+                <button onClick={openResearch} className="group inline-flex items-center gap-3 rounded-full bg-[#17304a] px-5 py-3.5 text-sm font-semibold text-white shadow-xl shadow-[#17304a]/10 transition hover:-translate-y-1 hover:bg-[#244968]" data-testid="button-explore-idea">
                   Explore your research idea <ArrowRight size={16} className="transition group-hover:translate-x-1" />
                 </button>
                 <a href="#roadmap" className="inline-flex items-center gap-2 px-2 py-3 text-sm font-semibold text-[#526679] transition hover:text-[#168e98]" data-testid="link-see-roadmap">
@@ -320,7 +326,7 @@ function Home() {
         <section id="vision" className="relative overflow-hidden bg-[#e5f3f2] px-5 py-24 sm:px-8 sm:py-32 lg:px-12" data-testid="section-vision">
           <div className="absolute -bottom-40 -left-40 size-[32rem] rounded-full border border-[#b8dddc] sm:size-[42rem]" />
           <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_0.86fr] lg:items-center lg:gap-24">
-            <div className="reveal relative z-10"><SectionLabel>Future vision</SectionLabel><h2 className="max-w-3xl font-serif text-5xl leading-[0.92] tracking-[-0.04em] text-[#17304a] sm:text-7xl" data-testid="text-vision-title">A better first step changes the whole journey.</h2><p className="mt-8 max-w-lg text-base leading-7 text-[#5e747c]">MIDAS begins with navigation. Over time, it becomes a dependable research companion: helping more people ask better questions, make more informed decisions, and find their place in the work.</p><button onClick={openModal} className="group mt-8 inline-flex items-center gap-2 text-sm font-semibold text-[#17304a] transition hover:text-[#168e98]" data-testid="button-vision-start">Begin with an idea <ArrowRight size={16} className="transition group-hover:translate-x-1" /></button></div>
+            <div className="reveal relative z-10"><SectionLabel>Future vision</SectionLabel><h2 className="max-w-3xl font-serif text-5xl leading-[0.92] tracking-[-0.04em] text-[#17304a] sm:text-7xl" data-testid="text-vision-title">A better first step changes the whole journey.</h2><p className="mt-8 max-w-lg text-base leading-7 text-[#5e747c]">MIDAS begins with navigation. Over time, it becomes a dependable research companion: helping more people ask better questions, make more informed decisions, and find their place in the work.</p><button onClick={openResearch} className="group mt-8 inline-flex items-center gap-2 text-sm font-semibold text-[#17304a] transition hover:text-[#168e98]" data-testid="button-vision-start">Begin with an idea <ArrowRight size={16} className="transition group-hover:translate-x-1" /></button></div>
             <div className="reveal reveal-delay-2 relative mx-auto w-full max-w-sm"><div className="relative aspect-square rounded-full border border-[#a8cfce] bg-[#effafa]/60 p-8"><div className="absolute inset-8 rounded-full border border-dashed border-[#a8cfce]" /><div className="absolute inset-16 rounded-full border border-[#a8cfce]/70" /><div className="absolute inset-0 grid place-items-center"><div className="grid size-28 place-items-center rounded-[2rem] bg-[#17304a] text-center shadow-2xl shadow-[#17304a]/20"><span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#8fe6e2]">the work<br />ahead</span></div></div><span className="absolute left-[13%] top-[22%] grid size-12 place-items-center rounded-2xl bg-[#f7e8ca] text-[#7d5d2d]"><Lightbulb size={20} /></span><span className="absolute bottom-[15%] right-[8%] grid size-12 place-items-center rounded-2xl bg-[#e3e5f4] text-[#576084]"><BookOpen size={20} /></span><span className="absolute right-[15%] top-[9%] size-2 rounded-full bg-[#168e98]" /></div></div>
           </div>
         </section>
@@ -328,7 +334,7 @@ function Home() {
         <section className="bg-[#17304a] px-5 py-24 sm:px-8 sm:py-32 lg:px-12" data-testid="section-final-cta">
           <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-10 md:flex-row md:items-end">
             <div className="reveal"><p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#8fe6e2]">Your next step is allowed to be small.</p><h2 className="mt-5 max-w-2xl font-serif text-6xl leading-[0.9] tracking-[-0.045em] text-white sm:text-8xl" data-testid="text-final-cta-title">Start with the question.</h2></div>
-            <button onClick={openModal} className="reveal reveal-delay-2 group flex shrink-0 items-center gap-3 rounded-full bg-[#8fe6e2] px-5 py-3.5 text-sm font-semibold text-[#17304a] transition hover:-translate-y-1 hover:bg-[#b7efeb]" data-testid="button-final-start">Explore your idea <ArrowUpRight size={16} className="transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></button>
+            <button onClick={openResearch} className="reveal reveal-delay-2 group flex shrink-0 items-center gap-3 rounded-full bg-[#8fe6e2] px-5 py-3.5 text-sm font-semibold text-[#17304a] transition hover:-translate-y-1 hover:bg-[#b7efeb]" data-testid="button-final-start">Explore your idea <ArrowUpRight size={16} className="transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></button>
           </div>
         </section>
       </main>
@@ -337,22 +343,34 @@ function Home() {
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col justify-between gap-10 border-b border-[#2d4659] pb-10 md:flex-row">
             <div><Logo light /><p className="mt-5 max-w-xs text-sm leading-6 text-[#8fa5b0]">A research navigation platform for people at the beginning of the journey.</p></div>
-            <div className="grid grid-cols-2 gap-x-14 gap-y-8 sm:grid-cols-3"><div><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">Explore</p><div className="mt-4 space-y-3 text-sm"><a href="#roadmap" className="block transition hover:text-white" data-testid="link-footer-roadmap">Roadmap</a><a href="#how-it-works" className="block transition hover:text-white" data-testid="link-footer-how-it-works">How it works</a><a href="#features" className="block transition hover:text-white" data-testid="link-footer-features">Features</a></div></div><div><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">About</p><div className="mt-4 space-y-3 text-sm"><a href="#vision" className="block transition hover:text-white" data-testid="link-footer-vision">Vision</a><button onClick={openModal} className="block text-left transition hover:text-white" data-testid="button-footer-start">Start researching</button></div></div><div className="col-span-2 sm:col-span-1"><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">Stage</p><p className="mt-4 text-sm leading-6 text-[#8fa5b0]">Landing experience<br />Mock data only</p></div></div>
+             <div className="grid grid-cols-2 gap-x-14 gap-y-8 sm:grid-cols-3"><div><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">Explore</p><div className="mt-4 space-y-3 text-sm"><a href="#roadmap" className="block transition hover:text-white" data-testid="link-footer-roadmap">Roadmap</a><a href="#how-it-works" className="block transition hover:text-white" data-testid="link-footer-how-it-works">How it works</a><a href="#features" className="block transition hover:text-white" data-testid="link-footer-features">Features</a></div></div><div><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">About</p><div className="mt-4 space-y-3 text-sm"><a href="#vision" className="block transition hover:text-white" data-testid="link-footer-vision">Vision</a><button onClick={openResearch} className="block text-left transition hover:text-white" data-testid="button-footer-start">Start researching</button></div></div><div className="col-span-2 sm:col-span-1"><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">Stage</p><p className="mt-4 text-sm leading-6 text-[#8fa5b0]">Research workspace<br />Prototype data only</p></div></div>
           </div>
           <div className="flex flex-col justify-between gap-3 pt-6 text-[11px] text-[#718994] sm:flex-row"><span data-testid="text-footer-copyright">© 2025 MIDAS. A clearer beginning for research.</span><span>Medical / Research Intelligence and Discovery Assistant System</span></div>
         </div>
       </footer>
 
-      {modalOpen && <StartModal onClose={() => setModalOpen(false)} />}
     </div>
   );
 }
 
-function Router() {
+function Router({
+  researchResult,
+  onProcessingComplete,
+}: {
+  researchResult: ResearchResult | null;
+  onProcessingComplete: (result: ResearchResult) => void;
+}) {
   return (
     <RoutedErrorBoundary>
       <Switch>
         <Route path="/" component={Home} />
+        <Route path="/research" component={ResearchInputPage} />
+        <Route path="/processing">
+          <ProcessingPage onComplete={onProcessingComplete} />
+        </Route>
+        <Route path="/workspace">
+          <ResearchWorkspace result={researchResult ?? processResearchIdea(sampleResearchIdea)} />
+        </Route>
         <Route component={NotFound} />
       </Switch>
     </RoutedErrorBoundary>
@@ -365,11 +383,13 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
 }
 
 function App() {
+  const [researchResult, setResearchResult] = useState<ResearchResult | null>(() => loadSavedResearchResult());
+
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <Router />
+          <Router researchResult={researchResult} onProcessingComplete={setResearchResult} />
         </WouterRouter>
         <Toaster />
       </TooltipProvider>
