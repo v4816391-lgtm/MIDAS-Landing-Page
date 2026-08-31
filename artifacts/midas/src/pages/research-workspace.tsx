@@ -157,6 +157,9 @@ function QuestionSection({ result }: WorkspaceProps) {
       </div>
       <div className="grid gap-5 rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:grid-cols-2 sm:p-7 lg:grid-cols-3">
         <Field label="Topic" value={question.topic} />
+        <Field label="Disease / subject" value={question.subject} />
+        <Field label="Technology" value={question.technology} />
+        <Field label="Research task" value={question.researchTask} />
         <Field label="Population" value={question.population} />
         <Field label="Exposure / intervention" value={question.exposure} />
         <Field label="Outcome" value={question.outcome} />
@@ -167,6 +170,16 @@ function QuestionSection({ result }: WorkspaceProps) {
             {question.keyConcepts.map((concept) => (
               <span key={concept} className="rounded-full bg-[#f0f6f6] px-2.5 py-1 text-xs text-[#4c6874]">
                 {concept}
+              </span>
+            ))}
+          </div>
+        </div>
+        <div className="sm:col-span-2 lg:col-span-3">
+          <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#8aa0a7]">Search keywords</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {question.keywords.map((keyword) => (
+              <span key={keyword} className="rounded-full bg-[#eef0fb] px-2.5 py-1 text-xs text-[#596286]">
+                {keyword}
               </span>
             ))}
           </div>

@@ -2,11 +2,15 @@ export type ResearchQuestionData = {
   originalIdea: string;
   refinedQuestion: string;
   topic: string;
+  subject: string;
+  technology: string;
+  researchTask: string;
   population: string;
   exposure: string;
   outcome: string;
   researchType: string;
   keyConcepts: string[];
+  keywords: string[];
 };
 
 export type LiteratureItem = {
@@ -89,7 +93,7 @@ export type ResearchResult = {
 export const sampleResearchIdea =
   'I want to study how sleep deprivation affects memory in medical students.';
 
-export const prototypeResearchContent: Omit<ResearchResult, 'question'> = {
+export const sleepResearchContent: Omit<ResearchResult, 'question'> = {
   literature: [
     {
       id: 'lit-01',
