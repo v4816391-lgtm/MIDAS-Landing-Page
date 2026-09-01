@@ -21,6 +21,7 @@ export type RoadmapSection =
   | 'ethics'
   | 'data-collection'
   | 'analysis'
+  | 'journal-selection'
   | 'publication';
 
 export type RoadmapStep = {
@@ -42,7 +43,7 @@ export const roadmapSteps: RoadmapStep[] = [
   { id: 'data-collection', number: '07', label: 'Data Collection', description: 'Gather evidence', section: 'data-collection', icon: Users },
   { id: 'data-analysis', number: '08', label: 'Data Analysis', description: 'Interpret the evidence', section: 'analysis', icon: BarChart3 },
   { id: 'manuscript-writing', number: '09', label: 'Manuscript Writing', description: 'Make the thinking visible', section: 'publication', icon: PenLine },
-  { id: 'journal-selection', number: '10', label: 'Journal Selection', description: 'Find the audience', section: 'publication', icon: FileText },
+  { id: 'journal-selection', number: '10', label: 'Journal Selection', description: 'Find the audience', section: 'journal-selection', icon: FileText },
   { id: 'publication', number: '11', label: 'Publication', description: 'Share the work', section: 'publication', icon: FileText },
 ];
 
@@ -54,5 +55,6 @@ export const workspaceNavigation: { label: string; section: RoadmapSection; step
   { label: 'Ethics', section: 'ethics', stepId: 'ethics' },
   { label: 'Data Collection', section: 'data-collection', stepId: 'data-collection' },
   { label: 'Analysis', section: 'analysis', stepId: 'data-analysis' },
+  { label: 'Journal Selection', section: 'journal-selection', stepId: 'journal-selection' },
   { label: 'Publication', section: 'publication', stepId: 'publication' },
 ];

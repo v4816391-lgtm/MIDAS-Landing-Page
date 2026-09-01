@@ -1,9 +1,14 @@
 export type ResearchQuestionData = {
   originalIdea: string;
+  researchQuestion?: string;
   refinedQuestion: string;
+  domain?: string;
+  subdomain?: string;
   topic: string;
   subject: string;
+  researchObjective?: string;
   technology: string;
+  dataType?: string;
   researchTask: string;
   population: string;
   exposure: string;
@@ -11,6 +16,7 @@ export type ResearchQuestionData = {
   researchType: string;
   keyConcepts: string[];
   keywords: string[];
+  clarifications?: string[];
 };
 
 export type LiteratureItem = {
@@ -26,6 +32,10 @@ export type LiteratureItem = {
   sourceUrl?: string;
   doi?: string;
   identifier?: string;
+  journalUrl?: string;
+  relevanceTier?: 'Directly relevant' | 'Highly relevant' | 'Methodologically relevant' | 'Background';
+  relevanceScore?: number;
+  relevanceReason?: string;
 };
 
 export type MethodologyOption = {
@@ -69,7 +79,10 @@ export type JournalRecommendation = {
   name: string;
   area: string;
   reason: string;
-  relevanceScore: number;
+  source: string;
+  evidence: string;
+  originalJournalLink: string;
+  relevanceScore: number | null;
 };
 
 export type BeginnerMistake = {
@@ -112,6 +125,7 @@ export type ResearchResult = {
   dataCollection: DataCollectionPlan;
   analysis: AnalysisPlan;
   journals: JournalRecommendation[];
+  journalSelectionNote?: string;
   beginnerMistakes: BeginnerMistake[];
   roadmap?: RoadmapItem[];
 };

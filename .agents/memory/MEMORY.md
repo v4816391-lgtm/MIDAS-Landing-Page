@@ -1,1 +1,2 @@
 - [Artifact workflow verification](artifact-workflow-verification.md) — restart backend workflows after code changes; provide required PORT/BASE_PATH when building artifacts manually.
+- [OpenAlex journal evidence](openalex-journal-evidence.md) — resolve work source IDs through the OpenAlex sources API before showing journal homepages; omit unverifiable candidates.

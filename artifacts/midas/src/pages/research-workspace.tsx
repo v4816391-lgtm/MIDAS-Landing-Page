@@ -145,21 +145,25 @@ function QuestionSection({ result }: WorkspaceProps) {
           </p>
         </article>
         <article className="rounded-2xl border border-[#a9d7d7] bg-[#eaf7f7] p-5 sm:p-7">
-          <PrototypeTag>Possible refined question</PrototypeTag>
+          <PrototypeTag>MIDAS&apos;s interpretation</PrototypeTag>
           <p className="mt-5 font-serif text-2xl leading-tight tracking-[-0.025em] text-[#17304a] sm:text-3xl">
-            {question.refinedQuestion}
+            {question.researchObjective ?? question.refinedQuestion}
           </p>
           <div className="mt-6 flex items-center gap-2 text-xs text-[#5f7d83]">
             <Sparkles size={14} className="text-[#168e98]" />
-            Refine this with your supervisor or research team later.
+            The user&apos;s wording remains unchanged; verify this interpretation with your supervisor or research team.
           </div>
         </article>
       </div>
       <div className="grid gap-5 rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:grid-cols-2 sm:p-7 lg:grid-cols-3">
+        <Field label="Domain" value={question.domain ?? 'To be defined'} />
+        <Field label="Subdomain" value={question.subdomain ?? 'To be defined'} />
         <Field label="Topic" value={question.topic} />
         <Field label="Disease / subject" value={question.subject} />
         <Field label="Technology" value={question.technology} />
+        <Field label="Data type" value={question.dataType ?? 'To be defined'} />
         <Field label="Research task" value={question.researchTask} />
+        <Field label="Research objective" value={question.researchObjective ?? 'To be defined'} wide />
         <Field label="Population" value={question.population} />
         <Field label="Exposure / intervention" value={question.exposure} />
         <Field label="Outcome" value={question.outcome} />
@@ -183,6 +187,18 @@ function QuestionSection({ result }: WorkspaceProps) {
               </span>
             ))}
           </div>
+        </div>
+        <div className="sm:col-span-2 lg:col-span-3">
+          <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#bb8643]">Important elements still to clarify</p>
+          {question.clarifications?.length ? (
+            <div className="mt-2 flex flex-wrap gap-2">
+              {question.clarifications.map((item) => (
+                <span key={item} className="rounded-xl border border-[#eadbbd] bg-[#fffaf0] px-3 py-2 text-xs leading-5 text-[#705c3d]">{item}</span>
+              ))}
+            </div>
+          ) : (
+            <p className="mt-2 text-sm text-[#607987]">No immediate clarification flags were detected from the submitted idea. Confirm the protocol details before proceeding.</p>
+          )}
         </div>
       </div>
     </section>
@@ -233,6 +249,12 @@ function PlanningSection({ result }: WorkspaceProps) {
 
 function LiteratureSection({ result }: WorkspaceProps) {
   const { searchStrategy } = result;
+  const tierLabels: Record<string, string> = {
+    'Directly relevant': '1 · Directly relevant',
+    'Highly relevant': '2 · Highly relevant',
+    'Methodologically relevant': '3 · Methodologically relevant',
+    Background: '4 · Background',
+  };
   return (
     <section id="section-literature" className="space-y-6" data-testid="workspace-section-literature">
       <SectionHeading
@@ -275,11 +297,19 @@ function LiteratureSection({ result }: WorkspaceProps) {
           <p className="mt-2 text-sm leading-6 text-[#607987]">{searchStrategy.databases.join(' · ')}</p>
         </article>
         <div className="space-y-4">
-          {result.literature.length ? result.literature.map((paper) => (
-            <article key={paper.id} className="rounded-2xl border border-[#d7e5e8] bg-white p-5 transition hover:border-[#a9cfd1] sm:p-6">
+          {result.literature.length ? result.literature.map((paper, index) => (
+            <div key={paper.id}>
+              {(index === 0 || paper.relevanceTier !== result.literature[index - 1]?.relevanceTier) && (
+                <div className="mb-2 mt-2 flex items-center justify-between px-1">
+                  <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#168e98]">{tierLabels[paper.relevanceTier ?? 'Background']}</p>
+                  <p className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#8aa0a7]">ranked by complete idea</p>
+                </div>
+              )}
+              <article className="rounded-2xl border border-[#d7e5e8] bg-white p-5 transition hover:border-[#a9cfd1] sm:p-6">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-[#eef0fb] px-2.5 py-1 text-[10px] font-semibold text-[#596286]">{paper.studyType}</span>
                 <span className="rounded-full bg-[#eaf7f7] px-2.5 py-1 text-[10px] font-semibold text-[#168e98]">{paper.source ?? 'Scholarly source'}</span>
+                {paper.relevanceScore !== undefined && <span className="rounded-full bg-[#f7f1e5] px-2.5 py-1 text-[10px] font-semibold text-[#896632]">Match {paper.relevanceScore}/100</span>}
                 <span className="font-mono text-[10px] text-[#8aa0a7]">{paper.area} · {paper.year ?? 'Year not listed'}</span>
               </div>
               <h3 className="mt-3 text-base font-semibold leading-6 text-[#17304a]">{paper.title}</h3>
@@ -287,7 +317,7 @@ function LiteratureSection({ result }: WorkspaceProps) {
               <p className="mt-4 text-sm leading-6 text-[#607987]">{paper.summary}</p>
               <div className="mt-4 flex items-start gap-2 border-t border-[#edf2f3] pt-4 text-xs leading-5 text-[#5e777f]">
                 <BookOpen size={14} className="mt-0.5 shrink-0 text-[#168e98]" />
-                <span><strong className="font-semibold text-[#17304a]">MIDAS relevance note:</strong> {paper.relevance}</span>
+                <span><strong className="font-semibold text-[#17304a]">Why it ranked here:</strong> {paper.relevanceReason ?? paper.relevance}</span>
               </div>
               <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[#edf2f3] pt-4 font-mono text-[9px] uppercase tracking-[0.1em] text-[#8aa0a7]">
                 {paper.identifier && <span>{paper.identifier}</span>}
@@ -298,7 +328,8 @@ function LiteratureSection({ result }: WorkspaceProps) {
                   </a>
                 )}
               </div>
-            </article>
+              </article>
+            </div>
           )) : (
             <div className="rounded-2xl border border-dashed border-[#cbdde0] bg-white p-6 text-sm leading-6 text-[#607987]">
               No records were returned by the selected scholarly providers. MIDAS has not substituted fictional results; narrow the idea or try the search again.
@@ -314,7 +345,7 @@ function LiteratureSection({ result }: WorkspaceProps) {
             <p className="mt-5 text-xs leading-5 text-[#8a9ba3]">{result.evidence.caveat}</p>
           </article>
           <article className="rounded-2xl border border-[#eadbbd] bg-[#fffaf0] p-5 sm:p-7">
-            <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#bb8643]">Gaps to verify</p>
+            <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#bb8643]">Potential Research Gaps</p>
             <div className="mt-3"><BulletList items={result.evidence.gaps} icon={AlertTriangle} tone="amber" /></div>
           </article>
         </div>
@@ -486,18 +517,21 @@ function AnalysisSection({ result }: WorkspaceProps) {
   );
 }
 
-function PublicationSection({ result }: WorkspaceProps) {
+function JournalSelectionSection({ result }: WorkspaceProps) {
   return (
-    <section id="section-publication" className="space-y-6" data-testid="workspace-section-publication">
+    <section id="section-journal-selection" className="space-y-6" data-testid="workspace-section-journal-selection">
       <SectionHeading
-        eyebrow="09–11 · Publication"
-        title="Carry the work to the audience."
-        description="Writing and journal selection become easier when the question, evidence, and contribution are clear."
+        eyebrow="10 · Journal Selection"
+        title="Choose where it belongs."
+        description="These are real venues observed in the ranked source set. Confirm scope, article type, and author requirements before choosing a target."
       >
-        <PrototypeTag>MIDAS-generated journal shortlist</PrototypeTag>
+        <PrototypeTag>MIDAS-ranked journal evidence</PrototypeTag>
       </SectionHeading>
+      <div className="rounded-2xl border border-[#cfe2e3] bg-[#eef8f8] p-4 text-sm leading-6 text-[#526b77]">
+        {result.journalSelectionNote ?? 'Journal evidence is generated from the retrieved source set and must be verified against each journal’s current scope.'}
+      </div>
       <div className="grid gap-4">
-        {result.journals.map((journal) => (
+        {result.journals.length ? result.journals.map((journal) => (
           <article key={journal.name} className="rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
               <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-[#e7f7f8] text-[#168e98]"><FileText size={18} /></div>
@@ -505,14 +539,61 @@ function PublicationSection({ result }: WorkspaceProps) {
                 <h3 className="text-base font-semibold text-[#17304a]">{journal.name}</h3>
                 <p className="mt-1 text-xs text-[#7b8d95]">{journal.area}</p>
               </div>
-              <div className="w-full sm:w-40">
-                <div className="flex justify-between font-mono text-[9px] uppercase tracking-[0.12em] text-[#8aa0a7]"><span>Prototype fit</span><span>{journal.relevanceScore}%</span></div>
-                <div className="mt-2 h-1.5 rounded-full bg-[#e8f0f1]"><div className="h-full rounded-full bg-[#20aeb0]" style={{ width: `${journal.relevanceScore}%` }} /></div>
-              </div>
+              {journal.relevanceScore !== null && (
+                <div className="w-full sm:w-40">
+                  <div className="flex justify-between font-mono text-[9px] uppercase tracking-[0.12em] text-[#8aa0a7]"><span>Evidence match</span><span>{journal.relevanceScore}/100</span></div>
+                  <div className="mt-2 h-1.5 rounded-full bg-[#e8f0f1]"><div className="h-full rounded-full bg-[#20aeb0]" style={{ width: `${journal.relevanceScore}%` }} /></div>
+                </div>
+              )}
             </div>
             <p className="mt-4 border-t border-[#edf2f3] pt-4 text-sm leading-6 text-[#607987]">{journal.reason}</p>
+            <div className="mt-4 flex flex-col gap-2 border-t border-[#edf2f3] pt-4 text-xs leading-5 text-[#7b8d95]">
+              <p><strong className="font-semibold text-[#40586a]">Source / evidence:</strong> {journal.source} · {journal.evidence}</p>
+              <a href={journal.originalJournalLink} target="_blank" rel="noreferrer" className="w-fit font-semibold text-[#168e98] hover:text-[#17304a]">
+                Open original journal page <ArrowRight size={12} className="ml-1 inline" />
+              </a>
+            </div>
           </article>
-        ))}
+        )) : (
+          <div className="rounded-2xl border border-dashed border-[#cbdde0] bg-white p-6 text-sm leading-6 text-[#607987]">
+            Reliable journal evidence is insufficient in the retrieved set. MIDAS has not invented names or scores; screen the original papers and verify current journal scope before selecting a venue.
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function PublicationSection({ result }: WorkspaceProps) {
+  const { question } = result;
+  const publicationSteps = [
+    `Choose a target journal after reviewing the ranked evidence-backed venues for ${question.topic}.`,
+    'Verify the target journal’s current aims and scope.',
+    `Verify the article type fits the ${question.researchTask.toLowerCase()} study and ${question.dataType?.toLowerCase() ?? 'data type to be defined'}.`,
+    'Check the current author guidelines, formatting, references, and fees.',
+    'Confirm required reporting guidelines for the design, model, diagnostic evaluation, or ecological sampling.',
+    'Prepare ethics, consent, data-availability, code, funding, conflict-of-interest, and materials statements that apply.',
+    `Prepare the manuscript around the original question, ${question.researchObjective?.toLowerCase() ?? 'objective'}, evidence, limitations, and contribution.`,
+    'Submit through the journal’s current submission system and retain the submission record.',
+  ];
+  return (
+    <section id="section-publication" className="space-y-6" data-testid="workspace-section-publication">
+      <SectionHeading
+        eyebrow="11 · Publication"
+        title="Prepare the submission."
+        description="Publication is how you prepare and submit the work. It is separate from choosing where the work belongs."
+      >
+        <PrototypeTag>MIDAS-generated submission checklist</PrototypeTag>
+      </SectionHeading>
+      <div className="rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:p-7">
+        <div className="grid gap-5 md:grid-cols-2">
+          {publicationSteps.map((step, index) => (
+            <div key={step} className="flex gap-3 border-b border-[#edf2f3] pb-5 last:border-0 md:nth-[7]:border-0 md:nth-[8]:border-0 md:pb-0">
+              <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-[#e7f7f8] font-mono text-[10px] text-[#168e98]">{String(index + 1).padStart(2, '0')}</span>
+              <p className="text-sm leading-6 text-[#607987]">{step}</p>
+            </div>
+          ))}
+        </div>
       </div>
       <div className="rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:p-7">
         <div className="flex items-start gap-3">
@@ -545,6 +626,8 @@ function renderSection(section: RoadmapSection, result: ResearchResult) {
       return <DataCollectionSection result={result} />;
     case 'analysis':
       return <AnalysisSection result={result} />;
+    case 'journal-selection':
+      return <JournalSelectionSection result={result} />;
     case 'publication':
       return <PublicationSection result={result} />;
     default:
