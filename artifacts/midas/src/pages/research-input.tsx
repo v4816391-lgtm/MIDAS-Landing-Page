@@ -56,7 +56,7 @@ export default function ResearchInputPage() {
                 <div className="flex flex-col gap-3 border-t border-[#e7eff0] px-2 pt-3 sm:flex-row sm:items-center sm:justify-between sm:px-3">
                   <span className="flex items-center gap-2 text-[11px] text-[#80919a]">
                     <Sparkles size={13} className="text-[#168e98]" />
-                    Prototype processing · no account needed
+                    Real scholarly search · no account needed
                   </span>
                   <button
                     type="submit"

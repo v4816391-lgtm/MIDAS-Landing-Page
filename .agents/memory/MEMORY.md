@@ -1,0 +1,1 @@
+- [Artifact workflow verification](artifact-workflow-verification.md) — restart backend workflows after code changes; provide required PORT/BASE_PATH when building artifacts manually.

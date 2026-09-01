@@ -67,7 +67,7 @@ function SectionHeading({
   );
 }
 
-function PrototypeTag({ children = 'Prototype data' }: { children?: React.ReactNode }) {
+function PrototypeTag({ children = 'MIDAS-generated guidance' }: { children?: React.ReactNode }) {
   return (
     <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[#bfe5e3] bg-[#effafa] px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.13em] text-[#168e98]">
       <span className="size-1.5 rounded-full bg-[#20aeb0]" />
@@ -240,8 +240,19 @@ function LiteratureSection({ result }: WorkspaceProps) {
         title="See the conversation around it."
         description="Start with a repeatable search strategy, then read papers for methods and gaps—not just conclusions."
       >
-        <PrototypeTag>Prototype / Mock Literature Data</PrototypeTag>
+        <PrototypeTag>Retrieved scholarly records</PrototypeTag>
       </SectionHeading>
+      {result.sourcePlan && (
+        <div className="flex flex-col gap-2 rounded-2xl border border-[#cfe2e3] bg-[#eef8f8] p-4 text-xs leading-5 text-[#526b77] sm:flex-row sm:items-center sm:justify-between">
+          <span>
+            <strong className="font-semibold text-[#17304a]">Real source search:</strong>{' '}
+            {result.sourcePlan.providers.join(' · ')} · {result.domain}
+          </span>
+          <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#168e98]">
+            {result.literature.length} records retrieved
+          </span>
+        </div>
+      )}
       <div className="grid gap-4 lg:grid-cols-[1fr_1.3fr]">
         <article className="rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:p-7">
           <div className="flex items-center gap-2 text-[#168e98]">
@@ -264,23 +275,50 @@ function LiteratureSection({ result }: WorkspaceProps) {
           <p className="mt-2 text-sm leading-6 text-[#607987]">{searchStrategy.databases.join(' · ')}</p>
         </article>
         <div className="space-y-4">
-          {result.literature.map((paper) => (
+          {result.literature.length ? result.literature.map((paper) => (
             <article key={paper.id} className="rounded-2xl border border-[#d7e5e8] bg-white p-5 transition hover:border-[#a9cfd1] sm:p-6">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="rounded-full bg-[#eef0fb] px-2.5 py-1 text-[10px] font-semibold text-[#596286]">{paper.studyType}</span>
-                <span className="font-mono text-[10px] text-[#8aa0a7]">{paper.area} · {paper.year}</span>
+                <span className="rounded-full bg-[#eaf7f7] px-2.5 py-1 text-[10px] font-semibold text-[#168e98]">{paper.source ?? 'Scholarly source'}</span>
+                <span className="font-mono text-[10px] text-[#8aa0a7]">{paper.area} · {paper.year ?? 'Year not listed'}</span>
               </div>
               <h3 className="mt-3 text-base font-semibold leading-6 text-[#17304a]">{paper.title}</h3>
               <p className="mt-1 text-xs text-[#7b8d95]">{paper.authors}</p>
               <p className="mt-4 text-sm leading-6 text-[#607987]">{paper.summary}</p>
               <div className="mt-4 flex items-start gap-2 border-t border-[#edf2f3] pt-4 text-xs leading-5 text-[#5e777f]">
                 <BookOpen size={14} className="mt-0.5 shrink-0 text-[#168e98]" />
-                <span><strong className="font-semibold text-[#17304a]">Why it may help:</strong> {paper.relevance}</span>
+                <span><strong className="font-semibold text-[#17304a]">MIDAS relevance note:</strong> {paper.relevance}</span>
+              </div>
+              <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[#edf2f3] pt-4 font-mono text-[9px] uppercase tracking-[0.1em] text-[#8aa0a7]">
+                {paper.identifier && <span>{paper.identifier}</span>}
+                {paper.doi && <span>DOI: {paper.doi}</span>}
+                {paper.sourceUrl && (
+                  <a href={paper.sourceUrl} target="_blank" rel="noreferrer" className="font-semibold text-[#168e98] hover:text-[#17304a]">
+                    Open original source <ArrowRight size={12} className="ml-1 inline" />
+                  </a>
+                )}
               </div>
             </article>
-          ))}
+          )) : (
+            <div className="rounded-2xl border border-dashed border-[#cbdde0] bg-white p-6 text-sm leading-6 text-[#607987]">
+              No records were returned by the selected scholarly providers. MIDAS has not substituted fictional results; narrow the idea or try the search again.
+            </div>
+          )}
         </div>
       </div>
+      {result.evidence && (
+        <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+          <article className="rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:p-7">
+            <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#168e98]">Evidence orientation</p>
+            <p className="mt-3 text-sm leading-6 text-[#607987]">{result.evidence.summary}</p>
+            <p className="mt-5 text-xs leading-5 text-[#8a9ba3]">{result.evidence.caveat}</p>
+          </article>
+          <article className="rounded-2xl border border-[#eadbbd] bg-[#fffaf0] p-5 sm:p-7">
+            <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#bb8643]">Gaps to verify</p>
+            <div className="mt-3"><BulletList items={result.evidence.gaps} icon={AlertTriangle} tone="amber" /></div>
+          </article>
+        </div>
+      )}
     </section>
   );
 }
@@ -293,7 +331,7 @@ function MethodologySection({ result }: WorkspaceProps) {
         title="Compare the ways to learn."
         description="These are prototype recommendations to help you ask better design questions. They are not a substitute for methodological supervision."
       >
-        <PrototypeTag>Prototype recommendations</PrototypeTag>
+        <PrototypeTag>MIDAS-generated guidance</PrototypeTag>
       </SectionHeading>
       <div className="grid gap-4">
         {result.methodologies.map((method, index) => (
@@ -331,7 +369,7 @@ function InstrumentsSection({ result }: WorkspaceProps) {
         title="Choose measures with care."
         description="A named questionnaire or task is only the beginning. Check the evidence, version, permissions, and fit for your population."
       >
-        <PrototypeTag>Mock instruments</PrototypeTag>
+        <PrototypeTag>MIDAS-generated measurement prompts</PrototypeTag>
       </SectionHeading>
       <div className="flex items-start gap-3 rounded-2xl border border-[#eadbbd] bg-[#fffaf0] p-5 text-sm leading-6 text-[#705c3d]">
         <AlertTriangle size={17} className="mt-0.5 shrink-0 text-[#bb8643]" />
@@ -365,7 +403,7 @@ function EthicsSection({ result }: WorkspaceProps) {
         title="Build responsibility into the plan."
         description="Ethics is part of the design, not a formality at the end. Use these prompts to identify what needs local review."
       >
-        <PrototypeTag>Planning prompts</PrototypeTag>
+        <PrototypeTag>MIDAS-generated planning prompts</PrototypeTag>
       </SectionHeading>
       <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
         <article className="rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:p-7">
@@ -392,7 +430,7 @@ function DataCollectionSection({ result }: WorkspaceProps) {
         title="Turn the plan into fieldwork."
         description="Make it concrete: who participates, what you collect, how it happens, and where the boundaries are."
       >
-        <PrototypeTag>Prototype plan</PrototypeTag>
+        <PrototypeTag>MIDAS-generated plan</PrototypeTag>
       </SectionHeading>
       <div className="grid gap-4 lg:grid-cols-2">
         <article className="rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:p-7">
@@ -428,7 +466,7 @@ function AnalysisSection({ result }: WorkspaceProps) {
         title="Name what the evidence can say."
         description="Start by understanding the variables, then choose analysis that fits the design and the data you actually collect."
       >
-        <PrototypeTag>Prototype plan</PrototypeTag>
+        <PrototypeTag>MIDAS-generated plan</PrototypeTag>
       </SectionHeading>
       <article className="overflow-hidden rounded-2xl border border-[#d7e5e8] bg-white">
         <div className="flex items-center gap-2 border-b border-[#edf2f3] px-5 py-5 text-[#168e98] sm:px-7"><BarChart3 size={18} /><h3 className="font-semibold text-[#17304a]">Variable map</h3></div>
@@ -456,7 +494,7 @@ function PublicationSection({ result }: WorkspaceProps) {
         title="Carry the work to the audience."
         description="Writing and journal selection become easier when the question, evidence, and contribution are clear."
       >
-        <PrototypeTag>Prototype Journal Suggestions</PrototypeTag>
+        <PrototypeTag>MIDAS-generated journal shortlist</PrototypeTag>
       </SectionHeading>
       <div className="grid gap-4">
         {result.journals.map((journal) => (
@@ -551,7 +589,7 @@ export default function ResearchWorkspace({ result }: WorkspaceProps) {
           </div>
           <div className="flex items-center gap-2 text-xs text-[#71838b]">
             <span className="grid size-7 place-items-center rounded-full bg-[#8fe6e2] text-[#17304a]"><CheckCircle2 size={15} /></span>
-            Map generated locally
+            Built from real source records
           </div>
         </div>
 
@@ -568,7 +606,7 @@ export default function ResearchWorkspace({ result }: WorkspaceProps) {
             <div><SectionLabel>Interactive Research Roadmap</SectionLabel><h2 className="text-lg font-semibold text-[#17304a]">Move through the work in order—or jump where you need to.</h2></div>
             <span className="flex items-center gap-2 text-xs text-[#71838b]"><span className="size-2 rounded-full bg-[#8fe6e2]" /> Current step is highlighted</span>
           </div>
-          <InteractiveRoadmap activeStepId={activeStep.id} onSelect={selectStep} />
+          <InteractiveRoadmap activeStepId={activeStep.id} onSelect={selectStep} roadmap={result.roadmap} />
         </section>
 
         <div className="mt-9 grid gap-8 lg:grid-cols-[220px_1fr] lg:items-start lg:gap-12">
@@ -601,7 +639,7 @@ export default function ResearchWorkspace({ result }: WorkspaceProps) {
       <footer className="border-t border-[#dce7e9] bg-[#10273d] px-5 py-8 text-[#8fa5b0] sm:px-8 lg:px-12">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 text-xs sm:flex-row sm:items-center sm:justify-between">
           <p><span className="font-semibold text-white">MIDAS</span> · Research workspace prototype</p>
-          <p>Mock data only · Verify sources before making research decisions</p>
+          <p>Retrieved sources + MIDAS guidance · Verify original sources before making research decisions</p>
         </div>
       </footer>
     </div>

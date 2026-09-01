@@ -26,8 +26,7 @@ import ResearchInputPage from '@/pages/research-input';
 import ProcessingPage from '@/pages/processing';
 import ResearchWorkspace from '@/pages/research-workspace';
 import NotFound from '@/pages/not-found';
-import { loadSavedResearchResult, processResearchIdea } from '@/lib/processResearchIdea';
-import { sampleResearchIdea } from '@/data/researchData';
+import { loadSavedResearchResult } from '@/lib/processResearchIdea';
 import type { ResearchResult } from '@/data/researchData';
 import { Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 
@@ -108,7 +107,7 @@ function StartModal({ onClose }: { onClose: () => void }) {
         <div className="border-b border-[#e1e9ed] bg-[#eef8f8] px-7 pb-7 pt-8">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#168e98]">Stage 1 / idea mapping</p>
           <h2 id="modal-title" className="mt-3 font-serif text-4xl leading-none text-[#17304a]">Let&apos;s give it a first shape.</h2>
-          <p className="mt-3 max-w-sm text-sm leading-6 text-[#526679]">This is a mock preview of the MIDAS starting point. No account, no commitment — just a clearer next step.</p>
+          <p className="mt-3 max-w-sm text-sm leading-6 text-[#526679]">A quick preview of the MIDAS starting point. No account, no commitment — just a clearer next step.</p>
         </div>
         {!submitted ? (
           <form onSubmit={(event) => { event.preventDefault(); setSubmitted(true); }} className="space-y-5 p-7">
@@ -117,7 +116,7 @@ function StartModal({ onClose }: { onClose: () => void }) {
             <button type="submit" disabled={!idea.trim()} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#17304a] px-5 py-3.5 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#244968] disabled:cursor-not-allowed disabled:opacity-40" data-testid="button-map-idea">
               Map my idea <ArrowRight size={16} />
             </button>
-            <p className="text-center font-mono text-[10px] uppercase tracking-[0.16em] text-[#8a9aa6]">Mock data · Stage 1 preview</p>
+            <p className="text-center font-mono text-[10px] uppercase tracking-[0.16em] text-[#8a9aa6]">Interface preview · Stage 1</p>
           </form>
         ) : (
           <div className="p-7">
@@ -343,7 +342,7 @@ function Home() {
         <div className="mx-auto max-w-7xl">
           <div className="flex flex-col justify-between gap-10 border-b border-[#2d4659] pb-10 md:flex-row">
             <div><Logo light /><p className="mt-5 max-w-xs text-sm leading-6 text-[#8fa5b0]">A research navigation platform for people at the beginning of the journey.</p></div>
-             <div className="grid grid-cols-2 gap-x-14 gap-y-8 sm:grid-cols-3"><div><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">Explore</p><div className="mt-4 space-y-3 text-sm"><a href="#roadmap" className="block transition hover:text-white" data-testid="link-footer-roadmap">Roadmap</a><a href="#how-it-works" className="block transition hover:text-white" data-testid="link-footer-how-it-works">How it works</a><a href="#features" className="block transition hover:text-white" data-testid="link-footer-features">Features</a></div></div><div><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">About</p><div className="mt-4 space-y-3 text-sm"><a href="#vision" className="block transition hover:text-white" data-testid="link-footer-vision">Vision</a><button onClick={openResearch} className="block text-left transition hover:text-white" data-testid="button-footer-start">Start researching</button></div></div><div className="col-span-2 sm:col-span-1"><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">Stage</p><p className="mt-4 text-sm leading-6 text-[#8fa5b0]">Research workspace<br />Prototype data only</p></div></div>
+             <div className="grid grid-cols-2 gap-x-14 gap-y-8 sm:grid-cols-3"><div><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">Explore</p><div className="mt-4 space-y-3 text-sm"><a href="#roadmap" className="block transition hover:text-white" data-testid="link-footer-roadmap">Roadmap</a><a href="#how-it-works" className="block transition hover:text-white" data-testid="link-footer-how-it-works">How it works</a><a href="#features" className="block transition hover:text-white" data-testid="link-footer-features">Features</a></div></div><div><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">About</p><div className="mt-4 space-y-3 text-sm"><a href="#vision" className="block transition hover:text-white" data-testid="link-footer-vision">Vision</a><button onClick={openResearch} className="block text-left transition hover:text-white" data-testid="button-footer-start">Start researching</button></div></div><div className="col-span-2 sm:col-span-1"><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">Stage</p><p className="mt-4 text-sm leading-6 text-[#8fa5b0]">Research workspace<br />Real scholarly retrieval</p></div></div>
           </div>
           <div className="flex flex-col justify-between gap-3 pt-6 text-[11px] text-[#718994] sm:flex-row"><span data-testid="text-footer-copyright">© 2025 MIDAS. A clearer beginning for research.</span><span>Medical / Research Intelligence and Discovery Assistant System</span></div>
         </div>
@@ -369,7 +368,7 @@ function Router({
           <ProcessingPage onComplete={onProcessingComplete} />
         </Route>
         <Route path="/workspace">
-          <ResearchWorkspace result={researchResult ?? processResearchIdea(sampleResearchIdea)} />
+          {researchResult ? <ResearchWorkspace result={researchResult} /> : <ResearchInputPage />}
         </Route>
         <Route component={NotFound} />
       </Switch>

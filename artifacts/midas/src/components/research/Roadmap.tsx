@@ -1,19 +1,23 @@
 import { Check } from 'lucide-react';
 import { roadmapSteps, type RoadmapStep } from '@/data/roadmap';
+import type { RoadmapItem } from '@/data/researchData';
 
 type RoadmapProps = {
   activeStepId: string;
   onSelect: (step: RoadmapStep) => void;
+  roadmap?: RoadmapItem[];
 };
 
 export function InteractiveRoadmap({
   activeStepId,
   onSelect,
+  roadmap,
 }: RoadmapProps) {
   const activeIndex = Math.max(
     0,
     roadmapSteps.findIndex((step) => step.id === activeStepId),
   );
+  const activeGuidance = roadmap?.find((item) => item.stepId === activeStepId);
 
   return (
     <div className="relative" data-testid="interactive-research-roadmap">
@@ -69,6 +73,11 @@ export function InteractiveRoadmap({
           <strong className="text-[#17304a]">
             {roadmapSteps[activeIndex]?.label}
           </strong>
+          {activeGuidance && (
+            <span className="mt-1 block max-w-2xl text-[11px] leading-5 text-[#71818b]">
+              {activeGuidance.focus}
+            </span>
+          )}
         </span>
         <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-[#168e98]">
           {String(activeIndex + 1).padStart(2, '0')} / 11
