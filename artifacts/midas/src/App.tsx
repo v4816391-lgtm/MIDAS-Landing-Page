@@ -75,12 +75,12 @@ function useRevealOnScroll() {
 function Logo({ light = false }: { light?: boolean }) {
   return (
     <a href="#top" className="group inline-flex items-center gap-2.5" data-testid="link-logo">
-      <span className={`relative grid size-8 place-items-center rounded-[10px] ${light ? 'bg-[#8fe6e2]' : 'bg-[#17304a]'}`}>
-        <span className={`absolute size-3 rounded-full ${light ? 'bg-[#17304a]' : 'bg-[#a7e9e4]'}`} />
-        <span className={`absolute h-5 w-px rotate-45 ${light ? 'bg-[#17304a]/70' : 'bg-[#a7e9e4]/70'}`} />
-        <span className={`absolute h-5 w-px -rotate-45 ${light ? 'bg-[#17304a]/70' : 'bg-[#a7e9e4]/70'}`} />
+      <span className={`relative grid size-8 place-items-center rounded-[10px] ${light ? 'bg-[#D4AF37]' : 'bg-[#4C1D95]'}`}>
+        <span className={`absolute size-3 rounded-full ${light ? 'bg-[#4C1D95]' : 'bg-[#D4AF37]'}`} />
+        <span className={`absolute h-5 w-px rotate-45 ${light ? 'bg-[#4C1D95]/70' : 'bg-[#D4AF37]/70'}`} />
+        <span className={`absolute h-5 w-px -rotate-45 ${light ? 'bg-[#4C1D95]/70' : 'bg-[#D4AF37]/70'}`} />
       </span>
-      <span className={`font-semibold tracking-[-0.04em] ${light ? 'text-white' : 'text-[#17304a]'}`}>MIDAS</span>
+      <span className={`font-brand text-2xl ${light ? 'text-white' : 'text-[#4C1D95]'}`}>Invenio</span>
     </a>
   );
 }
@@ -107,7 +107,7 @@ function StartModal({ onClose }: { onClose: () => void }) {
         <div className="border-b border-[#e1e9ed] bg-[#eef8f8] px-7 pb-7 pt-8">
           <p className="font-mono text-[10px] uppercase tracking-[0.18em] text-[#168e98]">Stage 1 / idea mapping</p>
           <h2 id="modal-title" className="mt-3 font-serif text-4xl leading-none text-[#17304a]">Let&apos;s give it a first shape.</h2>
-          <p className="mt-3 max-w-sm text-sm leading-6 text-[#526679]">A quick preview of the MIDAS starting point. No account, no commitment — just a clearer next step.</p>
+          <p className="mt-3 max-w-sm text-sm leading-6 text-[#526679]">A quick preview of the Invenio starting point. No account, no commitment — just a clearer next step.</p>
         </div>
         {!submitted ? (
           <form onSubmit={(event) => { event.preventDefault(); setSubmitted(true); }} className="space-y-5 p-7">
@@ -194,7 +194,7 @@ function Home() {
   ];
 
   return (
-    <div className="midas-noise min-h-[100dvh] bg-[#f7fbfb] text-[#17304a]">
+      <div className="midas-noise min-h-[100dvh] bg-[#F9F7FC] text-[#4C1D95]">
       <header id="top" className="absolute inset-x-0 top-0 z-30">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-12">
           <Logo />
@@ -227,10 +227,10 @@ function Home() {
                 <span className="pulse-dot size-1.5 rounded-full bg-[#20aeb0]" /> Stage 1 · the landing experience
               </div>
               <h1 className="reveal reveal-delay-1 mt-7 max-w-[700px] font-serif text-[clamp(3.6rem,8vw,7.5rem)] leading-[0.88] tracking-[-0.045em] text-[#17304a]" data-testid="text-hero-title">
-                Your research idea <em className="text-[#16999f]">deserves</em> a roadmap.
+                 Build research, <em className="text-[#D4AF37]">not just ideas.</em>
               </h1>
               <p className="reveal reveal-delay-2 mt-8 max-w-lg text-base leading-7 text-[#607180] sm:text-lg sm:leading-8" data-testid="text-hero-description">
-                MIDAS is a calm, structured guide for the first stretch of research — from the question that keeps tapping at you to a next step you can trust.
+                Build research, not just ideas. Invenio is a calm, structured guide for the first stretch of research — from the question that keeps tapping at you to a next step you can trust.
               </p>
               <div className="reveal reveal-delay-3 mt-9 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
                 <button onClick={openResearch} className="group inline-flex items-center gap-3 rounded-full bg-[#17304a] px-5 py-3.5 text-sm font-semibold text-white shadow-xl shadow-[#17304a]/10 transition hover:-translate-y-1 hover:bg-[#244968]" data-testid="button-explore-idea">
@@ -276,7 +276,7 @@ function Home() {
           <div className="mx-auto max-w-7xl">
             <div className="reveal grid gap-8 md:grid-cols-[0.9fr_1.1fr] md:items-end">
               <div><SectionLabel>From uncertainty to underway</SectionLabel><h2 className="max-w-xl font-serif text-5xl leading-[0.95] tracking-[-0.035em] text-[#17304a] sm:text-6xl" data-testid="text-roadmap-title">A map for the part no one teaches you.</h2></div>
-              <p className="max-w-md text-base leading-7 text-[#687b87] md:justify-self-end">Research is rarely a straight line. MIDAS gives you enough structure to move through the turns without taking the curiosity out of it.</p>
+              <p className="max-w-md text-base leading-7 text-[#687b87] md:justify-self-end">Research is rarely a straight line. Invenio gives you enough structure to move through the turns without taking the curiosity out of it.</p>
             </div>
             <RoadmapVisual />
           </div>
@@ -305,7 +305,7 @@ function Home() {
             <div className="reveal mb-14 flex flex-col justify-between gap-5 md:flex-row md:items-end"><div><SectionLabel>How it works</SectionLabel><h2 className="font-serif text-5xl leading-none tracking-[-0.035em] text-[#17304a] sm:text-6xl">Three steps. Less second-guessing.</h2></div><p className="max-w-xs text-sm leading-6 text-[#637985]">A guided beginning that still leaves room for your own point of view.</p></div>
             <div className="grid gap-5 md:grid-cols-3">
               {[
-                { number: '01', title: 'Enter your idea', description: 'Start with a question, a hunch, or even a half-formed sentence. MIDAS meets you there.', Icon: Lightbulb },
+                { number: '01', title: 'Enter your idea', description: 'Start with a question, a hunch, or even a half-formed sentence. Invenio meets you there.', Icon: Lightbulb },
                 { number: '02', title: 'Understand the route', description: 'See the decisions ahead, in plain language, with context for why each one matters.', Icon: BookOpen },
                 { number: '03', title: 'Move forward', description: 'Leave each session with one concrete next step — and a better question than you arrived with.', Icon: ArrowRight },
               ].map(({ number, title, description, Icon }, index) => <article className={`reveal reveal-delay-${index + 1} relative overflow-hidden rounded-2xl border border-[#d5e5e6] bg-[#f9fdfd] p-6 sm:p-8`} key={number}><span className="font-mono text-[10px] tracking-[0.16em] text-[#168e98]">{number}</span><div className="mt-12 grid size-11 place-items-center rounded-xl bg-[#17304a] text-[#8fe6e2]"><Icon size={20} strokeWidth={1.7} /></div><h3 className="mt-6 text-xl font-semibold tracking-[-0.02em] text-[#17304a]">{title}</h3><p className="mt-3 text-sm leading-6 text-[#6c7f88]">{description}</p><span className="absolute -bottom-8 -right-5 font-serif text-[11rem] leading-none text-[#e7f2f2]">{number}</span></article>)}
@@ -315,7 +315,7 @@ function Home() {
 
         <section id="features" className="bg-[#f7fbfb] px-5 py-24 sm:px-8 sm:py-32 lg:px-12" data-testid="section-features">
           <div className="mx-auto max-w-7xl">
-            <div className="reveal max-w-2xl"><SectionLabel>What MIDAS holds</SectionLabel><h2 className="font-serif text-5xl leading-[0.95] tracking-[-0.035em] text-[#17304a] sm:text-6xl" data-testid="text-features-title">Enough guidance to make the next move feel yours.</h2></div>
+            <div className="reveal max-w-2xl"><SectionLabel>What Invenio holds</SectionLabel><h2 className="font-serif text-5xl leading-[0.95] tracking-[-0.035em] text-[#17304a] sm:text-6xl" data-testid="text-features-title">Enough guidance to make the next move feel yours.</h2></div>
             <div className="mt-16 grid gap-4 md:grid-cols-12">
               {features.map((feature, index) => { const Icon = feature.icon; return <article className={`reveal reveal-delay-${(index % 3) + 1} group relative overflow-hidden rounded-2xl border border-[#dce7e9] bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-[#b9d5d8] hover:shadow-[0_22px_45px_-30px_rgba(23,48,74,0.4)] ${index === 0 ? 'md:col-span-7 md:min-h-72' : index === 1 ? 'md:col-span-5 md:min-h-72' : 'md:col-span-4 md:min-h-64'}`} key={feature.title}><div className={`grid size-11 place-items-center rounded-xl ${feature.tint} text-[#17304a] transition group-hover:scale-105`}><Icon size={19} strokeWidth={1.7} /></div><span className="absolute right-6 top-7 font-mono text-[10px] text-[#9dafb6]">{feature.index}</span><h3 className="mt-14 text-xl font-semibold tracking-[-0.025em] text-[#17304a]">{feature.title}</h3><p className="mt-3 max-w-sm text-sm leading-6 text-[#6b7c86]">{feature.description}</p><ArrowUpRight size={17} className="absolute bottom-6 right-6 text-[#adc4c9] transition group-hover:-translate-y-1 group-hover:translate-x-1 group-hover:text-[#168e98]" /></article>; })}
             </div>
@@ -325,15 +325,15 @@ function Home() {
         <section id="vision" className="relative overflow-hidden bg-[#e5f3f2] px-5 py-24 sm:px-8 sm:py-32 lg:px-12" data-testid="section-vision">
           <div className="absolute -bottom-40 -left-40 size-[32rem] rounded-full border border-[#b8dddc] sm:size-[42rem]" />
           <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1fr_0.86fr] lg:items-center lg:gap-24">
-            <div className="reveal relative z-10"><SectionLabel>Future vision</SectionLabel><h2 className="max-w-3xl font-serif text-5xl leading-[0.92] tracking-[-0.04em] text-[#17304a] sm:text-7xl" data-testid="text-vision-title">A better first step changes the whole journey.</h2><p className="mt-8 max-w-lg text-base leading-7 text-[#5e747c]">MIDAS begins with navigation. Over time, it becomes a dependable research companion: helping more people ask better questions, make more informed decisions, and find their place in the work.</p><button onClick={openResearch} className="group mt-8 inline-flex items-center gap-2 text-sm font-semibold text-[#17304a] transition hover:text-[#168e98]" data-testid="button-vision-start">Begin with an idea <ArrowRight size={16} className="transition group-hover:translate-x-1" /></button></div>
+            <div className="reveal relative z-10"><SectionLabel>Future vision</SectionLabel><h2 className="max-w-3xl font-serif text-5xl leading-[0.92] tracking-[-0.04em] text-[#17304a] sm:text-7xl" data-testid="text-vision-title">A better first step changes the whole journey.</h2><p className="mt-8 max-w-lg text-base leading-7 text-[#5e747c]">Invenio begins with navigation. Over time, it becomes a dependable research companion: helping more people ask better questions, make more informed decisions, and find their place in the work.</p><button onClick={openResearch} className="group mt-8 inline-flex items-center gap-2 text-sm font-semibold text-[#17304a] transition hover:text-[#168e98]" data-testid="button-vision-start">Begin with an idea <ArrowRight size={16} className="transition group-hover:translate-x-1" /></button></div>
             <div className="reveal reveal-delay-2 relative mx-auto w-full max-w-sm"><div className="relative aspect-square rounded-full border border-[#a8cfce] bg-[#effafa]/60 p-8"><div className="absolute inset-8 rounded-full border border-dashed border-[#a8cfce]" /><div className="absolute inset-16 rounded-full border border-[#a8cfce]/70" /><div className="absolute inset-0 grid place-items-center"><div className="grid size-28 place-items-center rounded-[2rem] bg-[#17304a] text-center shadow-2xl shadow-[#17304a]/20"><span className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#8fe6e2]">the work<br />ahead</span></div></div><span className="absolute left-[13%] top-[22%] grid size-12 place-items-center rounded-2xl bg-[#f7e8ca] text-[#7d5d2d]"><Lightbulb size={20} /></span><span className="absolute bottom-[15%] right-[8%] grid size-12 place-items-center rounded-2xl bg-[#e3e5f4] text-[#576084]"><BookOpen size={20} /></span><span className="absolute right-[15%] top-[9%] size-2 rounded-full bg-[#168e98]" /></div></div>
           </div>
         </section>
 
         <section className="bg-[#17304a] px-5 py-24 sm:px-8 sm:py-32 lg:px-12" data-testid="section-final-cta">
           <div className="mx-auto flex max-w-5xl flex-col items-start justify-between gap-10 md:flex-row md:items-end">
-            <div className="reveal"><p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#8fe6e2]">Your next step is allowed to be small.</p><h2 className="mt-5 max-w-2xl font-serif text-6xl leading-[0.9] tracking-[-0.045em] text-white sm:text-8xl" data-testid="text-final-cta-title">Start with the question.</h2></div>
-            <button onClick={openResearch} className="reveal reveal-delay-2 group flex shrink-0 items-center gap-3 rounded-full bg-[#8fe6e2] px-5 py-3.5 text-sm font-semibold text-[#17304a] transition hover:-translate-y-1 hover:bg-[#b7efeb]" data-testid="button-final-start">Explore your idea <ArrowUpRight size={16} className="transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></button>
+           <div className="reveal"><p className="font-mono text-[10px] uppercase tracking-[0.2em] text-[#D4AF37]">Your next step is allowed to be small.</p><h2 className="mt-5 max-w-2xl font-serif text-6xl leading-[0.9] tracking-[-0.045em] text-white sm:text-8xl" data-testid="text-final-cta-title">Start with the question.</h2></div>
+             <button onClick={openResearch} className="reveal reveal-delay-2 group flex shrink-0 items-center gap-3 rounded-full bg-[#D4AF37] px-5 py-3.5 text-sm font-semibold text-[#4C1D95] transition hover:-translate-y-1 hover:bg-[#E3C65A]" data-testid="button-final-start">Explore your idea <ArrowUpRight size={16} className="transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></button>
           </div>
         </section>
       </main>
@@ -344,7 +344,7 @@ function Home() {
             <div><Logo light /><p className="mt-5 max-w-xs text-sm leading-6 text-[#8fa5b0]">A research navigation platform for people at the beginning of the journey.</p></div>
              <div className="grid grid-cols-2 gap-x-14 gap-y-8 sm:grid-cols-3"><div><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">Explore</p><div className="mt-4 space-y-3 text-sm"><a href="#roadmap" className="block transition hover:text-white" data-testid="link-footer-roadmap">Roadmap</a><a href="#how-it-works" className="block transition hover:text-white" data-testid="link-footer-how-it-works">How it works</a><a href="#features" className="block transition hover:text-white" data-testid="link-footer-features">Features</a></div></div><div><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">About</p><div className="mt-4 space-y-3 text-sm"><a href="#vision" className="block transition hover:text-white" data-testid="link-footer-vision">Vision</a><button onClick={openResearch} className="block text-left transition hover:text-white" data-testid="button-footer-start">Start researching</button></div></div><div className="col-span-2 sm:col-span-1"><p className="font-mono text-[9px] uppercase tracking-[0.18em] text-[#8fe6e2]">Stage</p><p className="mt-4 text-sm leading-6 text-[#8fa5b0]">Research workspace<br />Real scholarly retrieval</p></div></div>
           </div>
-          <div className="flex flex-col justify-between gap-3 pt-6 text-[11px] text-[#718994] sm:flex-row"><span data-testid="text-footer-copyright">© 2025 MIDAS. A clearer beginning for research.</span><span>Medical / Research Intelligence and Discovery Assistant System</span></div>
+           <div className="flex flex-col justify-between gap-3 pt-6 text-[11px] text-[#718994] sm:flex-row"><span data-testid="text-footer-copyright">© 2025 Invenio. A clearer beginning for research.</span><span>Collaborative research intelligence for ambitious minds</span></div>
         </div>
       </footer>
 

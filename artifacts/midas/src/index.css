@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @plugin "@tailwindcss/typography";
@@ -60,6 +60,7 @@
   --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-serif);
   --font-mono: var(--app-font-mono);
+  --font-brand: var(--app-font-brand);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -79,43 +80,44 @@
   --elevate-1: rgba(0, 0, 0, 0.03);
   --elevate-2: rgba(0, 0, 0, 0.08);
 
-  --background: 210 30% 98%;
-  --foreground: 222 43% 16%;
-  --border: 214 22% 88%;
+  --background: 270 33% 98%;
+  --foreground: 263 67% 24%;
+  --border: 264 28% 89%;
   --card: 0 0% 100%;
-  --card-foreground: 222 43% 16%;
-  --card-border: 214 22% 88%;
-  --sidebar: 220 33% 97%;
-  --sidebar-foreground: 222 43% 16%;
-  --sidebar-border: 214 22% 88%;
-  --sidebar-primary: 222 43% 16%;
+  --card-foreground: 263 67% 24%;
+  --card-border: 264 28% 89%;
+  --sidebar: 270 33% 97%;
+  --sidebar-foreground: 263 67% 24%;
+  --sidebar-border: 264 28% 89%;
+  --sidebar-primary: 263 67% 24%;
   --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 206 100% 96%;
   --sidebar-accent-foreground: 207 76% 32%;
   --sidebar-ring: 203 86% 45%;
   --popover: 0 0% 100%;
-  --popover-foreground: 222 43% 16%;
-  --popover-border: 214 22% 88%;
-  --primary: 222 43% 16%;
+  --popover-foreground: 263 67% 24%;
+  --popover-border: 264 28% 89%;
+  --primary: 263 67% 24%;
   --primary-foreground: 0 0% 100%;
-  --secondary: 206 100% 96%;
-  --secondary-foreground: 207 76% 32%;
-  --muted: 210 23% 94%;
-  --muted-foreground: 215 16% 46%;
-  --accent: 188 71% 47%;
-  --accent-foreground: 222 43% 16%;
+  --secondary: 265 100% 97%;
+  --secondary-foreground: 263 67% 24%;
+  --muted: 270 23% 94%;
+  --muted-foreground: 264 16% 46%;
+  --accent: 45 65% 52%;
+  --accent-foreground: 263 67% 24%;
   --destructive: 0 71% 51%;
   --destructive-foreground: 0 0% 100%;
-  --input: 214 22% 82%;
-  --ring: 188 71% 47%;
-  --chart-1: 188 71% 47%;
-  --chart-2: 222 43% 16%;
-  --chart-3: 206 76% 63%;
-  --chart-4: 34 88% 62%;
+  --input: 264 22% 82%;
+  --ring: 45 65% 52%;
+  --chart-1: 263 67% 24%;
+  --chart-2: 45 65% 52%;
+  --chart-3: 266 76% 63%;
+  --chart-4: 34 70% 62%;
   --chart-5: 157 38% 47%;
   --app-font-sans: 'DM Sans', sans-serif;
   --app-font-serif: 'Instrument Serif', Georgia, serif;
   --app-font-mono: 'DM Mono', monospace;
+  --app-font-brand: 'Cormorant Garamond', Georgia, serif;
   --radius: 0.875rem;
   --shadow-2xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0); /*replace with H S L */
   --shadow-xs: 0px 2px 0px 0px hsl(202.8169 89.1213% 53.1373% / 0); /*replace with H S L */
@@ -280,8 +282,8 @@ body {
 
 .midas-grid {
   background-image:
-    linear-gradient(hsl(214 22% 88% / 0.42) 1px, transparent 1px),
-    linear-gradient(90deg, hsl(214 22% 88% / 0.42) 1px, transparent 1px);
+    linear-gradient(hsl(264 28% 89% / 0.55) 1px, transparent 1px),
+    linear-gradient(90deg, hsl(264 28% 89% / 0.55) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: linear-gradient(to bottom, black, transparent 88%);
 }
@@ -295,6 +297,51 @@ body {
   opacity: 0.028;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
 }
+
+.font-brand {
+  font-family: var(--app-font-brand);
+  font-weight: 600;
+  letter-spacing: -0.045em;
+}
+
+/* Brand migration for the existing utility-heavy UI. Keep the original
+   component structure while making the new identity consistent across every
+   route and interaction state. */
+[class*="bg-[#17304a]"] { background-color: #4C1D95 !important; }
+[class*="bg-[#244968]"]:hover { background-color: #5B21B6 !important; }
+[class*="bg-[#8fe6e2]"] { background-color: #D4AF37 !important; }
+[class*="bg-[#b7efeb]"]:hover { background-color: #E3C65A !important; }
+[class*="bg-[#f7fbfb]"] { background-color: #F9F7FC !important; }
+[class*="bg-[#f2f8f8]"] { background-color: #F5F0FC !important; }
+[class*="bg-[#edf7f7]"] { background-color: #F2ECFB !important; }
+[class*="bg-[#e5f3f2]"] { background-color: #EFE8FA !important; }
+[class*="bg-[#eef8f8]"] { background-color: #F3EEFB !important; }
+[class*="bg-[#e7f7f8]"],
+[class*="bg-[#eaf7f7]"],
+[class*="bg-[#f0f7f7]"] { background-color: #F2ECFB !important; }
+[class*="bg-[#eef0fb]"] { background-color: #F0EBFF !important; }
+[class*="bg-[#f7f1e5]"],
+[class*="bg-[#f7e8ca]"] { background-color: #FAF3DE !important; }
+[class*="bg-[#f8eded]"] { background-color: #FAEFF1 !important; }
+[class*="bg-[#eaf3ee]"] { background-color: #EEF7F1 !important; }
+[class*="text-[#17304a]"] { color: #4C1D95 !important; }
+[class*="text-[#244968]"] { color: #5B21B6 !important; }
+[class*="text-[#8fe6e2]"],
+[class*="text-[#a7e9e4]"] { color: #D4AF37 !important; }
+[class*="text-[#168e98]"],
+[class*="text-[#16999f]"],
+[class*="text-[#20aeb0]"] { color: #4C1D95 !important; }
+[class*="bg-[#20aeb0]"] { background-color: #D4AF37 !important; }
+[class*="border-[#8fe6e2]"] { border-color: #D4AF37 !important; }
+[class*="border-[#b7d2d8]"],
+[class*="border-[#bcdedf]"],
+[class*="border-[#a9d6d8]"],
+[class*="border-[#a8cfce]"] { border-color: #CFC0E5 !important; }
+[class*="border-[#dce7e9]"],
+[class*="border-[#d7e5e8]"],
+[class*="border-[#d5e5e6]"],
+[class*="border-[#dce5ea]"] { border-color: #E3DDEE !important; }
+[class*="border-[#38536a]"] { border-color: #5F438F !important; }
 
 .reveal {
   opacity: 0;

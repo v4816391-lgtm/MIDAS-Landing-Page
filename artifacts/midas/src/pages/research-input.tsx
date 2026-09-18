@@ -33,7 +33,7 @@ export default function ResearchInputPage() {
               Start with the question.
             </h1>
             <p className="mt-7 max-w-lg text-base leading-7 text-[#607180] sm:text-lg sm:leading-8">
-              Bring the first version of your idea. MIDAS will organize the
+              Bring the first version of your idea. Invenio will organize the
               pieces into a research map you can actually move through.
             </p>
 

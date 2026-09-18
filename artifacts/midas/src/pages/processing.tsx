@@ -63,7 +63,7 @@ export default function ProcessingPage({ onComplete }: ProcessingPageProps) {
               Giving your idea a first shape.
             </h1>
             <p className="mx-auto mt-6 max-w-lg text-base leading-7 text-[#607180]">
-              MIDAS is organizing the information needed for your research
+              Invenio is organizing the information needed for your research
               journey by searching public scholarly sources and separating
               retrieved evidence from planning guidance.
             </p>
@@ -78,7 +78,7 @@ export default function ProcessingPage({ onComplete }: ProcessingPageProps) {
                  <div className="flex items-start gap-3">
                    <AlertTriangle size={17} className="mt-0.5 shrink-0 text-[#bb8643]" />
                    <div>
-                     <p className="text-sm font-semibold text-[#5f4d31]">MIDAS needs a clearer idea or another search attempt.</p>
+                     <p className="text-sm font-semibold text-[#5f4d31]">Invenio needs a clearer idea or another search attempt.</p>
                      <p className="mt-1 text-sm leading-6 text-[#705c3d]">{error}</p>
                      <button type="button" onClick={() => setLocation('/research')} className="mt-4 inline-flex items-center rounded-lg bg-[#17304a] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[#244968]">
                        Edit research idea

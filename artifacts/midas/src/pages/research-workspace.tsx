@@ -67,7 +67,7 @@ function SectionHeading({
   );
 }
 
-function PrototypeTag({ children = 'MIDAS-generated guidance' }: { children?: React.ReactNode }) {
+function PrototypeTag({ children = 'Invenio-generated guidance' }: { children?: React.ReactNode }) {
   return (
     <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[#bfe5e3] bg-[#effafa] px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.13em] text-[#168e98]">
       <span className="size-1.5 rounded-full bg-[#20aeb0]" />
@@ -127,7 +127,7 @@ function QuestionSection({ result }: WorkspaceProps) {
       <SectionHeading
         eyebrow="01 · Research Question"
         title="Give the idea a useful shape."
-        description="This is the working version MIDAS created from your first thought. Keep editing it as you learn."
+        description="This is the working version Invenio created from your first thought. Keep editing it as you learn."
       >
         <PrototypeTag />
       </SectionHeading>
@@ -145,7 +145,7 @@ function QuestionSection({ result }: WorkspaceProps) {
           </p>
         </article>
         <article className="rounded-2xl border border-[#a9d7d7] bg-[#eaf7f7] p-5 sm:p-7">
-          <PrototypeTag>MIDAS&apos;s interpretation</PrototypeTag>
+            <PrototypeTag>Invenio&apos;s interpretation</PrototypeTag>
           <p className="mt-5 font-serif text-2xl leading-tight tracking-[-0.025em] text-[#17304a] sm:text-3xl">
             {question.researchObjective ?? question.refinedQuestion}
           </p>
@@ -332,7 +332,7 @@ function LiteratureSection({ result }: WorkspaceProps) {
             </div>
           )) : (
             <div className="rounded-2xl border border-dashed border-[#cbdde0] bg-white p-6 text-sm leading-6 text-[#607987]">
-              No records were returned by the selected scholarly providers. MIDAS has not substituted fictional results; narrow the idea or try the search again.
+              No records were returned by the selected scholarly providers. Invenio has not substituted fictional results; narrow the idea or try the search again.
             </div>
           )}
         </div>
@@ -362,7 +362,7 @@ function MethodologySection({ result }: WorkspaceProps) {
         title="Compare the ways to learn."
         description="These are prototype recommendations to help you ask better design questions. They are not a substitute for methodological supervision."
       >
-        <PrototypeTag>MIDAS-generated guidance</PrototypeTag>
+        <PrototypeTag>Invenio-generated guidance</PrototypeTag>
       </SectionHeading>
       <div className="grid gap-4">
         {result.methodologies.map((method, index) => (
@@ -400,7 +400,7 @@ function InstrumentsSection({ result }: WorkspaceProps) {
         title="Choose measures with care."
         description="A named questionnaire or task is only the beginning. Check the evidence, version, permissions, and fit for your population."
       >
-        <PrototypeTag>MIDAS-generated measurement prompts</PrototypeTag>
+        <PrototypeTag>Invenio-generated measurement prompts</PrototypeTag>
       </SectionHeading>
       <div className="flex items-start gap-3 rounded-2xl border border-[#eadbbd] bg-[#fffaf0] p-5 text-sm leading-6 text-[#705c3d]">
         <AlertTriangle size={17} className="mt-0.5 shrink-0 text-[#bb8643]" />
@@ -434,7 +434,7 @@ function EthicsSection({ result }: WorkspaceProps) {
         title="Build responsibility into the plan."
         description="Ethics is part of the design, not a formality at the end. Use these prompts to identify what needs local review."
       >
-        <PrototypeTag>MIDAS-generated planning prompts</PrototypeTag>
+        <PrototypeTag>Invenio-generated planning prompts</PrototypeTag>
       </SectionHeading>
       <div className="grid gap-4 lg:grid-cols-[1.15fr_0.85fr]">
         <article className="rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:p-7">
@@ -461,7 +461,7 @@ function DataCollectionSection({ result }: WorkspaceProps) {
         title="Turn the plan into fieldwork."
         description="Make it concrete: who participates, what you collect, how it happens, and where the boundaries are."
       >
-        <PrototypeTag>MIDAS-generated plan</PrototypeTag>
+        <PrototypeTag>Invenio-generated plan</PrototypeTag>
       </SectionHeading>
       <div className="grid gap-4 lg:grid-cols-2">
         <article className="rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:p-7">
@@ -497,7 +497,7 @@ function AnalysisSection({ result }: WorkspaceProps) {
         title="Name what the evidence can say."
         description="Start by understanding the variables, then choose analysis that fits the design and the data you actually collect."
       >
-        <PrototypeTag>MIDAS-generated plan</PrototypeTag>
+        <PrototypeTag>Invenio-generated plan</PrototypeTag>
       </SectionHeading>
       <article className="overflow-hidden rounded-2xl border border-[#d7e5e8] bg-white">
         <div className="flex items-center gap-2 border-b border-[#edf2f3] px-5 py-5 text-[#168e98] sm:px-7"><BarChart3 size={18} /><h3 className="font-semibold text-[#17304a]">Variable map</h3></div>
@@ -525,7 +525,7 @@ function JournalSelectionSection({ result }: WorkspaceProps) {
         title="Choose where it belongs."
         description="These are real venues observed in the ranked source set. Confirm scope, article type, and author requirements before choosing a target."
       >
-        <PrototypeTag>MIDAS-ranked journal evidence</PrototypeTag>
+        <PrototypeTag>Invenio-ranked journal evidence</PrototypeTag>
       </SectionHeading>
       <div className="rounded-2xl border border-[#cfe2e3] bg-[#eef8f8] p-4 text-sm leading-6 text-[#526b77]">
         {result.journalSelectionNote ?? 'Journal evidence is generated from the retrieved source set and must be verified against each journal’s current scope.'}
@@ -556,7 +556,7 @@ function JournalSelectionSection({ result }: WorkspaceProps) {
           </article>
         )) : (
           <div className="rounded-2xl border border-dashed border-[#cbdde0] bg-white p-6 text-sm leading-6 text-[#607987]">
-            Reliable journal evidence is insufficient in the retrieved set. MIDAS has not invented names or scores; screen the original papers and verify current journal scope before selecting a venue.
+            Reliable journal evidence is insufficient in the retrieved set. Invenio has not invented names or scores; screen the original papers and verify current journal scope before selecting a venue.
           </div>
         )}
       </div>
@@ -583,7 +583,7 @@ function PublicationSection({ result }: WorkspaceProps) {
         title="Prepare the submission."
         description="Publication is how you prepare and submit the work. It is separate from choosing where the work belongs."
       >
-        <PrototypeTag>MIDAS-generated submission checklist</PrototypeTag>
+        <PrototypeTag>Invenio-generated submission checklist</PrototypeTag>
       </SectionHeading>
       <div className="rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:p-7">
         <div className="grid gap-5 md:grid-cols-2">
@@ -721,8 +721,8 @@ export default function ResearchWorkspace({ result }: WorkspaceProps) {
       </main>
       <footer className="border-t border-[#dce7e9] bg-[#10273d] px-5 py-8 text-[#8fa5b0] sm:px-8 lg:px-12">
         <div className="mx-auto flex max-w-7xl flex-col gap-3 text-xs sm:flex-row sm:items-center sm:justify-between">
-          <p><span className="font-semibold text-white">MIDAS</span> · Research workspace prototype</p>
-          <p>Retrieved sources + MIDAS guidance · Verify original sources before making research decisions</p>
+          <p><span className="font-semibold text-white">Invenio</span> · Research workspace</p>
+          <p>Retrieved sources + Invenio guidance · Verify original sources before making research decisions</p>
         </div>
       </footer>
     </div>

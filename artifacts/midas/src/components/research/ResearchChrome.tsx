@@ -1,21 +1,21 @@
 import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
 import { useLocation } from 'wouter';
 
-export function MidasBrand() {
+export function InvenioBrand() {
   const [, setLocation] = useLocation();
   return (
     <button
       type="button"
       onClick={() => setLocation('/')}
       className="group inline-flex items-center gap-2.5"
-      aria-label="Return to MIDAS home"
+      aria-label="Return to Invenio home"
     >
-      <span className="relative grid size-8 place-items-center rounded-[10px] bg-[#17304a]">
-        <span className="absolute size-3 rounded-full bg-[#a7e9e4]" />
-        <span className="absolute h-5 w-px rotate-45 bg-[#a7e9e4]/70" />
-        <span className="absolute h-5 w-px -rotate-45 bg-[#a7e9e4]/70" />
+      <span className="relative grid size-8 place-items-center rounded-[10px] bg-[#4C1D95]">
+        <span className="absolute size-3 rounded-full bg-[#D4AF37]" />
+        <span className="absolute h-5 w-px rotate-45 bg-[#D4AF37]/70" />
+        <span className="absolute h-5 w-px -rotate-45 bg-[#D4AF37]/70" />
       </span>
-      <span className="font-semibold tracking-[-0.04em] text-[#17304a]">MIDAS</span>
+      <span className="font-brand text-2xl text-[#4C1D95]">Invenio</span>
     </button>
   );
 }
@@ -29,7 +29,7 @@ export function ResearchHeader({
   return (
     <header className="border-b border-[#dce7e9] bg-[#fbfdfd]/95 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8 lg:px-12">
-        <MidasBrand />
+        <InvenioBrand />
         <div className="flex items-center gap-3">
           <span className="hidden items-center gap-2 font-mono text-[9px] uppercase tracking-[0.16em] text-[#168e98] sm:flex">
             <Sparkles size={12} />
