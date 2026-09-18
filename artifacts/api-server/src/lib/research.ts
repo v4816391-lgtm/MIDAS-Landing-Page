@@ -36,6 +36,21 @@ type ResearchQuestion = {
   clarifications: string[];
 };
 
+type ResearchUnderstanding = {
+  objective: string;
+  domain: Domain;
+  population: string;
+  outcomes: string[];
+  keyConcerns: string[];
+  stakeholders: string[];
+};
+
+type SemanticExpansion = {
+  relatedConcepts: string[];
+  searchAnchors: string[];
+  explanation: string;
+};
+
 type LiteratureItem = {
   id: string;
   title: string;
@@ -55,6 +70,25 @@ type LiteratureItem = {
   relevanceReason: string;
 };
 
+type ResearchTheme = {
+  name: string;
+  description: string;
+  evidenceCount: number;
+  paperIds: string[];
+};
+
+type ResearchLandscape = {
+  majorThemes: ResearchTheme[];
+  whatIsKnown: string[];
+  keyPapers: LiteratureItem[];
+  emergingAreas: string[];
+  saturatedAreas: string[];
+  underexploredAreas: string[];
+  conflictingFindings: string[];
+  promisingDirections: string[];
+  caveat: string;
+};
+
 type RoadmapItem = {
   stepId: string;
   title: string;
@@ -65,6 +99,9 @@ type RoadmapItem = {
 
 export type ResearchResult = {
   question: ResearchQuestion;
+  understanding: ResearchUnderstanding;
+  semanticExpansion: SemanticExpansion;
+  researchLandscape: ResearchLandscape;
   domain: Domain;
   sourcePlan: {
     providers: string[];
@@ -481,6 +518,106 @@ function isTooBroad(idea: string, question: ResearchQuestion) {
   );
 }
 
+const SEMANTIC_RELATIONSHIPS: Record<string, string[]> = {
+  accountability: ["governance", "oversight", "liability", "transparency", "trust", "explainability"],
+  physician: ["clinical practice", "professional responsibility", "medical decision-making", "patient safety"],
+  clinician: ["clinical practice", "professional responsibility", "patient safety", "care quality"],
+  governance: ["oversight", "regulation", "institutional responsibility", "policy"],
+  oversight: ["monitoring", "governance", "audit", "compliance"],
+  liability: ["legal responsibility", "risk management", "professional duty"],
+  trust: ["confidence", "transparency", "legitimacy", "acceptability"],
+  explainability: ["interpretability", "transparency", "human oversight", "justification"],
+  artificial: ["algorithmic systems", "automation", "machine learning", "decision support"],
+  intelligence: ["algorithmic systems", "automation", "machine learning", "decision support"],
+  algorithm: ["model evaluation", "algorithmic systems", "validation", "performance"],
+  sleep: ["sleep loss", "fatigue", "circadian rhythm", "cognitive performance", "attention"],
+  deprivation: ["sleep loss", "fatigue", "stress", "recovery"],
+  memory: ["cognition", "recall", "learning", "attention", "executive function"],
+  student: ["learners", "academic performance", "training environment", "educational outcomes"],
+  education: ["learning", "pedagogy", "academic performance", "educational outcomes"],
+  climate: ["environmental change", "adaptation", "resilience", "risk"],
+  pollution: ["environmental exposure", "contamination", "public health", "risk"],
+  microplastic: ["plastic particles", "contamination", "marine pollution", "ecotoxicology"],
+  cancer: ["oncology", "tumor biology", "screening", "clinical outcomes"],
+  mental: ["psychological wellbeing", "behavioral health", "distress", "quality of life"],
+};
+
+const SEMANTIC_PHRASES: Array<[RegExp, string[]]> = [
+  [/physician\s+accountability/i, ["clinical governance", "professional oversight", "medical liability", "patient trust", "explainability"]],
+  [/algorithmic\s+accountability/i, ["algorithmic governance", "model oversight", "auditability", "transparency", "explainability"]],
+  [/healthcare\s+access/i, ["health equity", "care utilization", "barriers to care", "health disparities", "service delivery"]],
+  [/social\s+determinants/i, ["health inequity", "structural factors", "care access", "community health", "social vulnerability"]],
+  [/research\s+integrity/i, ["research ethics", "reproducibility", "responsible conduct", "transparency", "open science"]],
+];
+
+function expandSemanticConcepts(idea: string, question: ResearchQuestion): SemanticExpansion {
+  const lowerIdea = idea.toLowerCase();
+  const phraseConcepts = SEMANTIC_PHRASES.flatMap(([pattern, concepts]) => pattern.test(lowerIdea) ? concepts : []);
+  const tokenConcepts = tokenize(idea).flatMap((token) => SEMANTIC_RELATIONSHIPS[token] ?? []);
+  const relatedConcepts = unique([
+    ...phraseConcepts,
+    ...tokenConcepts,
+    question.subdomain,
+    question.researchTask,
+    question.outcome,
+  ])
+    .filter((concept) => concept && concept !== "To be defined")
+    .slice(0, 18);
+  const searchAnchors = unique([
+    question.topic,
+    question.domain,
+    question.population,
+    question.outcome,
+    ...relatedConcepts,
+  ])
+    .filter((anchor) => anchor && anchor !== "To be defined")
+    .slice(0, 16);
+
+  return {
+    relatedConcepts,
+    searchAnchors,
+    explanation: relatedConcepts.length
+      ? `The search expands beyond exact wording by connecting the idea to ${relatedConcepts.slice(0, 6).join(", ")}${relatedConcepts.length > 6 ? ", and related concepts" : ""}.`
+      : "The search uses the complete structured representation and domain context because no stable concept relationships were detected yet.",
+  };
+}
+
+function buildUnderstanding(question: ResearchQuestion, idea: string): ResearchUnderstanding {
+  const lowerIdea = idea.toLowerCase();
+  const stakeholders = unique([
+    question.domain === "medicine" ? "patients and care recipients" : "",
+    question.domain === "medicine" ? "clinicians and care teams" : "",
+    question.domain === "education" ? "students and learners" : "",
+    question.domain === "education" ? "educators and institutions" : "",
+    question.domain === "law / policy" ? "policymakers and regulators" : "",
+    question.domain === "environmental science" ? "communities and environmental stewards" : "",
+    "researchers and subject-matter experts",
+    "practitioners or organizations affected by the findings",
+  ]);
+  const keyConcerns = unique([
+    ...question.clarifications,
+    /(accountability|governance|liability|trust|ethic|fair|bias|privacy|safety)/i.test(lowerIdea)
+      ? "Governance, responsibility, and potential harms"
+      : "",
+    /(access|inequality|equity|disparit|underrepresented)/i.test(lowerIdea)
+      ? "Equity, access, and representation"
+      : "",
+    /(constraint|feasib|resource|time|cost|small sample|limited)/i.test(lowerIdea)
+      ? "Feasibility and resource constraints"
+      : "",
+    "Measurement quality and interpretation limits",
+  ]);
+
+  return {
+    objective: question.researchObjective,
+    domain: question.domain,
+    population: question.population,
+    outcomes: unique([question.outcome, question.researchTask]).filter((value) => value !== "To be defined"),
+    keyConcerns,
+    stakeholders,
+  };
+}
+
 function sourceProviders(domain: Domain) {
   if (["medicine", "biology", "psychology"].includes(domain)) {
     return ["Europe PMC", "OpenAlex"];
@@ -489,7 +626,7 @@ function sourceProviders(domain: Domain) {
   return ["OpenAlex", "Crossref"];
 }
 
-function createSearchQuery(question: ResearchQuestion) {
+function createSearchQuery(question: ResearchQuestion, semanticExpansion: SemanticExpansion) {
   return unique([
     question.domain,
     question.subdomain,
@@ -502,6 +639,7 @@ function createSearchQuery(question: ResearchQuestion) {
     question.outcome,
     question.researchTask,
     ...question.keyConcepts,
+    ...semanticExpansion.relatedConcepts,
   ])
     .filter((term) => term !== "To be defined")
     .join(" ");
@@ -519,11 +657,27 @@ function authorString(authors: Array<{ author?: { display_name?: string }; name?
 
 async function fetchJson(url: string) {
   const response = await fetch(url, {
-    headers: { accept: "application/json", "user-agent": "MIDAS research navigator prototype" },
+    headers: { accept: "application/json", "user-agent": "Invenio research investigator" },
     signal: AbortSignal.timeout(10000),
   });
   if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
   return response.json() as Promise<Record<string, unknown>>;
+}
+
+function reconstructOpenAlexAbstract(value: unknown) {
+  if (!value || typeof value !== "object") return undefined;
+  const inverted = value as Record<string, unknown>;
+  const words: Array<[number, string]> = [];
+  for (const [word, positions] of Object.entries(inverted)) {
+    if (!Array.isArray(positions)) continue;
+    positions.forEach((position) => {
+      if (typeof position === "number") words.push([position, word]);
+    });
+  }
+  return words
+    .sort((a, b) => a[0] - b[0])
+    .map(([, word]) => word)
+    .join(" ") || undefined;
 }
 
 async function searchEuropePmc(query: string): Promise<SourceRecord[]> {
@@ -595,7 +749,7 @@ async function searchOpenAlex(query: string): Promise<SourceRecord[]> {
         year: typeof item.publication_year === "number" ? item.publication_year : null,
         doi,
         identifier: `OpenAlex:${id.split("/").pop()}`,
-        abstract: undefined,
+         abstract: reconstructOpenAlexAbstract(item.abstract_inverted_index),
         studyType: typeof item.type === "string" ? item.type : "Scholarly work",
         area: primaryLocation?.source?.display_name ?? "OpenAlex",
         journalUrl: primaryLocation?.source?.homepage_url ?? (primaryLocation?.source?.id ? sourceHomepages.get(primaryLocation.source.id) : undefined),
@@ -674,7 +828,7 @@ function searchableTerms(value: string) {
   );
 }
 
-function scoreRecord(record: SourceRecord, question: ResearchQuestion) {
+function scoreRecord(record: SourceRecord, question: ResearchQuestion, semanticExpansion: SemanticExpansion) {
   const titleText = record.title.toLowerCase();
   const searchableText = `${record.title} ${record.abstract ?? ""} ${record.area ?? ""}`.toLowerCase();
   const searchableTokens = new Set(searchableTerms(searchableText));
@@ -707,6 +861,18 @@ function scoreRecord(record: SourceRecord, question: ResearchQuestion) {
   const methodTerms = ["validation", "diagnostic", "sensitivity", "specificity", "accuracy", "cohort", "survey", "sampling", "assay", "model", "classification", "ecosystem", "exposure"];
   const methodMatches = methodTerms.filter((term) => searchableText.includes(term)).length;
   if (methodMatches) score += Math.min(8, methodMatches * 2);
+  const semanticMatches = semanticExpansion.relatedConcepts.filter((concept) => {
+    const normalizedConcept = concept.toLowerCase();
+    return normalizedConcept.length > 3 && searchableText.includes(normalizedConcept);
+  });
+  if (semanticMatches.length) {
+    score += Math.min(24, semanticMatches.length * 4);
+    matches.push(`semantic concepts: ${semanticMatches.slice(0, 4).join(", ")}`);
+  }
+  if (semanticExpansion.searchAnchors.some((anchor) => titleText.includes(anchor.toLowerCase()))) {
+    score += 8;
+    matches.push("title-level semantic anchor");
+  }
 
   const normalizedScore = Math.max(0, Math.min(100, score));
   const tier = normalizedScore >= 70
@@ -728,7 +894,7 @@ function toLiteratureItem(record: SourceRecord, question: ResearchQuestion, rank
     ? record.abstract.replace(/\s+/g, " ").slice(0, 420) + (record.abstract.length > 420 ? "…" : "")
     : "Abstract not provided in the source record.";
   const matchText = ranking.matches.length ? ranking.matches.join(", ") : "limited structured-field overlap";
-  const relevanceReason = `${ranking.tier} because the record matched ${matchText} in the complete research representation. This ranking is a screening aid; verify the original paper.`;
+  const relevanceReason = `${ranking.tier} because the record aligned with ${matchText} across the complete research representation and semantic expansion. This ranking is a screening aid; verify the original paper.`;
   return {
     id: record.identifier ?? record.doi ?? record.sourceUrl,
     title: record.title,
@@ -794,18 +960,96 @@ function buildJournalRecommendations(question: ResearchQuestion, literature: Lit
     journals,
     note: journals.length
       ? "Journal candidates are real venues observed in the ranked source set. Scores are screening scores derived from complete-representation matches in retrieved records, not acceptance probabilities; verify journal scope directly."
-      : "Reliable journal evidence is insufficient in the retrieved set. MIDAS will not invent journal names or scores; identify venues after screening the original records and checking current scope pages.",
+      : "Reliable journal evidence is insufficient in the retrieved set. Invenio will not invent journal names or scores; identify venues after screening the original records and checking current scope pages.",
   };
 }
 
-function buildGuidance(question: ResearchQuestion, domain: Domain, literature: LiteratureItem[], sourceErrors: string[]) {
+function buildResearchLandscape(
+  question: ResearchQuestion,
+  semanticExpansion: SemanticExpansion,
+  literature: LiteratureItem[],
+): ResearchLandscape {
+  const corpus = literature.map((paper) => `${paper.title} ${paper.summary} ${paper.area}`.toLowerCase());
+  const countConcept = (concept: string) => {
+    const terms = searchableTerms(concept);
+    return corpus.filter((text) => terms.some((term) => text.includes(term))).length;
+  };
+  const conceptCounts = semanticExpansion.relatedConcepts
+    .map((concept) => ({ concept, count: countConcept(concept) }))
+    .sort((a, b) => b.count - a.count);
+  const majorThemes = conceptCounts
+    .filter(({ count }) => count > 0)
+    .slice(0, 5)
+    .map(({ concept, count }) => ({
+      name: concept,
+      description: `${count} retrieved record${count === 1 ? "" : "s"} connect this theme to the broader research idea.`,
+      evidenceCount: count,
+      paperIds: literature
+        .filter((paper) => searchableTerms(`${paper.title} ${paper.summary} ${paper.area}`).some((term) => searchableTerms(concept).includes(term)))
+        .slice(0, 4)
+        .map((paper) => paper.id),
+    }));
+
+  if (!majorThemes.length) {
+    majorThemes.push({
+      name: question.subdomain,
+      description: `The retrieved set is currently too sparse to separate ${question.subdomain} into evidence-backed subthemes.`,
+      evidenceCount: literature.length,
+      paperIds: literature.slice(0, 4).map((paper) => paper.id),
+    });
+  }
+
+  const recentYears = literature.map((paper) => paper.year).filter((year): year is number => Boolean(year));
+  const latestYear = recentYears.length ? Math.max(...recentYears) : new Date().getFullYear();
+  const emergingAreas = unique(
+    literature
+      .filter((paper) => paper.year && paper.year >= latestYear - 3)
+      .flatMap((paper) => semanticExpansion.relatedConcepts.filter((concept) => `${paper.title} ${paper.summary}`.toLowerCase().includes(concept.toLowerCase()))),
+  ).slice(0, 5);
+  const saturatedAreas = conceptCounts.filter(({ count }) => count >= Math.max(3, Math.ceil(literature.length * 0.45))).map(({ concept }) => concept).slice(0, 5);
+  const underexploredAreas = conceptCounts.filter(({ count }) => count <= 1).map(({ concept }) => concept).slice(0, 5);
+  const conflictSignals = literature.filter((paper) => /\b(mixed|conflicting|inconsistent|heterogeneous|no association|null result|not associated)\b/i.test(`${paper.title} ${paper.summary}`));
+  const conflictingFindings = conflictSignals.length
+    ? [`${conflictSignals.length} retrieved record${conflictSignals.length === 1 ? "" : "s"} contain language associated with mixed or null findings; compare populations, measures, and methods before synthesizing them.`]
+    : ["The retrieved metadata does not establish a conflict on its own; compare effect directions, definitions, and study designs in the full papers."];
+  const knownThemes = majorThemes.slice(0, 3).map((theme) => theme.name).join(", ");
+
+  return {
+    majorThemes,
+    whatIsKnown: literature.length
+      ? [
+        `The retrieved literature most consistently connects ${question.topic} with ${knownThemes || question.subdomain}.`,
+        `The current evidence set contains ${literature.length} records ranked against the full idea, not only the original wording.`,
+        `The strongest next interpretation depends on how ${question.population.toLowerCase()} and ${question.outcome.toLowerCase()} are defined in the original studies.`,
+      ]
+      : [`No scholarly records were returned for the expanded representation of ${question.topic}; there is not enough evidence to summarize what is known yet.`],
+    keyPapers: literature.slice(0, 5),
+    emergingAreas: emergingAreas.length ? emergingAreas : ["Recent directions could not be separated from the returned metadata yet."],
+    saturatedAreas: saturatedAreas.length ? saturatedAreas : ["No theme is saturated in this retrieved set; expand screening before making that claim."],
+    underexploredAreas: underexploredAreas.length ? underexploredAreas : ["The retrieved set does not show a clear underexplored semantic area yet."],
+    conflictingFindings,
+    promisingDirections: (underexploredAreas.length ? underexploredAreas : [question.outcome, question.population])
+      .filter((value) => value && value !== "To be defined")
+      .slice(0, 4)
+      .map((area) => `Test ${area.toLowerCase()} with clearer definitions, broader populations, or a design that can distinguish competing explanations.`),
+    caveat: "This landscape is an evidence-orientation layer built from retrieved metadata and abstracts. It is not a systematic review, and every theme, gap, and apparent conflict needs full-text verification.",
+  };
+}
+
+function buildGuidance(
+  question: ResearchQuestion,
+  domain: Domain,
+  literature: LiteratureItem[],
+  sourceErrors: string[],
+  landscape: ResearchLandscape,
+) {
   const anchor = literature[0]?.title ?? "No matching source record was returned";
   const topic = question.topic;
   const population = question.population;
   const isAiDiagnostic = question.technology === "Artificial intelligence / machine learning" && question.researchTask === "Detection / diagnosis";
   const isMarineEcology = /microplastic|marine ecosystem/i.test(`${question.topic} ${question.dataType}`);
   const evidenceNote = literature.length
-    ? `The ranked set contains ${literature.length} retrieved record${literature.length === 1 ? "" : "s"} for ${question.researchObjective}. Use it as a starting set; the strongest evidence and potential gaps still need full-text review.`
+    ? `The ranked set contains ${literature.length} retrieved record${literature.length === 1 ? "" : "s"} for ${question.researchObjective}. Use it as a starting set; the strongest evidence, themes, and potential gaps still need full-text review.`
     : `No source records were returned for ${topic}; narrow the query or try again before making a literature-based decision.`;
   const commonMethodologies = isAiDiagnostic
     ? [
@@ -909,13 +1153,13 @@ function buildGuidance(question: ResearchQuestion, domain: Domain, literature: L
   const roadmap: RoadmapItem[] = [
     { stepId: "research-question", title: "Research question", focus: `Preserve the question “${question.originalIdea}” and test whether the objective—${question.researchObjective}—is specific enough.`, actions: [`Define ${topic} and the intended ${question.outcome.toLowerCase()} in operational terms`, `Resolve these before collection: ${question.clarifications.length ? question.clarifications.join(", ") : "protocol, comparison, and timing"}`], evidenceAnchor: anchor },
     { stepId: "planning", title: "Planning", focus: `Set boundaries for ${topic} in ${population.toLowerCase()} using ${question.dataType.toLowerCase()}.`, actions: [`Write eligibility and exclusion criteria for ${population.toLowerCase()}`, `Choose the smallest useful sample and define ${question.outcome.toLowerCase()} before data collection`], evidenceAnchor: anchor },
-    { stepId: "literature-review", title: "Literature search", focus: `Search ${domain} and ${question.subdomain} sources using the complete representation: ${question.keyConcepts.slice(0, 5).join(", ")}.`, actions: [`Screen the ${literature.length} retrieved records into the four relevance tiers`, "Record inclusion decisions, provider names, search dates, and full-text availability"], evidenceAnchor: anchor },
-    { stepId: "methodology", title: "Relevant evidence and gaps", focus: `${evidenceNote} Compare evidence for ${question.researchTask.toLowerCase()} using ${question.dataType.toLowerCase()}.`, actions: ["Compare designs, reference standards, measures, and populations in the original sources", "Write a potential gap with its evidence count and verification caveat"], evidenceAnchor: anchor },
+    { stepId: "literature-review", title: "Literature search", focus: `Search ${domain} and ${question.subdomain} sources using the complete representation and semantic expansion: ${question.keyConcepts.slice(0, 4).join(", ")} plus related concepts.`, actions: [`Screen the ${literature.length} retrieved records into the four relevance tiers`, "Record inclusion decisions, provider names, search dates, semantic anchors, and full-text availability"], evidenceAnchor: anchor },
+    { stepId: "methodology", title: "Research landscape and gaps", focus: `${evidenceNote} Start with the landscape themes, known evidence, and gaps before choosing a design.`, actions: [`Compare the major themes: ${landscape.majorThemes.map((theme) => theme.name).slice(0, 3).join(", ")}`, `Investigate underexplored areas and conflicting findings before claiming a contribution`], evidenceAnchor: anchor },
     { stepId: "instruments", title: "Methodology / study design", focus: `Choose a design that can answer the ${question.researchTask.toLowerCase()} question about ${topic} with ${question.dataType.toLowerCase()}.`, actions: [`Define the comparison, reference standard, or sampling gradient for ${question.outcome.toLowerCase()}`, `Pre-specify the primary outcome, timing, and quality checks for ${question.dataType.toLowerCase()}`], evidenceAnchor: anchor },
     { stepId: "ethics", title: "Instruments / data requirements", focus: `Select valid, feasible measures for ${population.toLowerCase()} and the ${question.dataType.toLowerCase()} workflow.`, actions: [`Verify the primary ${question.outcome.toLowerCase()} measure against original validation evidence`, `Document acquisition, annotation, assay, recording, or sampling requirements for ${question.dataType.toLowerCase()}`], evidenceAnchor: anchor },
     { stepId: "data-collection", title: "Ethics and data collection", focus: `Plan responsible collection of ${question.dataType.toLowerCase()} for ${topic}.`, actions: [`Identify consent, privacy, permits, contamination, or data-governance needs relevant to ${question.dataType.toLowerCase()}`, "Define recruitment or site selection, storage, quality checks, and missing-data handling"], evidenceAnchor: anchor },
     { stepId: "data-analysis", title: "Analysis", focus: `Match the ${question.researchTask.toLowerCase()} analysis to ${question.dataType.toLowerCase()}, ${question.outcome.toLowerCase()}, and the evidence gap for ${topic}.`, actions: ["Create a variable map with the sampling or participant unit", "Write a prespecified descriptive and inferential analysis plan with assumptions and sensitivity checks"], evidenceAnchor: anchor },
-    { stepId: "manuscript-writing", title: "Writing", focus: `Write the contribution around “${question.originalIdea}”, the retrieved evidence, and what remains uncertain about ${topic}.`, actions: ["Separate retrieved findings, potential gaps, and MIDAS planning guidance", `Report how ${question.dataType.toLowerCase()} were collected or evaluated and state generalizability limits`], evidenceAnchor: anchor },
+    { stepId: "manuscript-writing", title: "Writing", focus: `Write the contribution around “${question.originalIdea}”, the retrieved evidence, and what remains uncertain about ${topic}.`, actions: ["Separate retrieved findings, potential gaps, and Invenio planning guidance", `Report how ${question.dataType.toLowerCase()} were collected or evaluated and state generalizability limits`], evidenceAnchor: anchor },
     { stepId: "journal-selection", title: "Journal selection", focus: `Shortlist evidence-backed venues for ${question.subdomain} work on ${topic}; do not treat a match score as acceptance probability.`, actions: ["Check aims, scope, article type, indexing, and current author guidance", "Compare each venue with the original source evidence shown in the journal cards"], evidenceAnchor: anchor },
     { stepId: "publication", title: "Publication", focus: `Prepare a transparent submission answering “${question.originalIdea}” with traceable ${question.dataType.toLowerCase()} methods and limitations.`, actions: ["Confirm references, data/code statements, ethics statements, reporting guidelines, and disclosures", "Use the selected journal’s current submission instructions and retain the submission record"], evidenceAnchor: anchor },
   ];
@@ -930,6 +1174,7 @@ function buildGuidance(question: ResearchQuestion, domain: Domain, literature: L
       ],
       caveat: "These are potential gaps inferred from retrieved metadata and abstracts, not confirmed gaps. Verify every point against the original papers; this is not a complete systematic review.",
     },
+    researchLandscape: landscape,
     methodologies: commonMethodologies,
     instruments: [
       {
@@ -951,7 +1196,7 @@ function buildGuidance(question: ResearchQuestion, domain: Domain, literature: L
     ],
     ethics: {
       considerations: ethicsConsiderations,
-      disclaimer: "MIDAS guidance is educational planning support, not ethics approval, legal advice, clinical advice, or regulatory approval.",
+       disclaimer: "Invenio guidance is educational planning support, not ethics approval, legal advice, clinical advice, or regulatory approval.",
     },
     dataCollection: {
       participants: population,
@@ -972,7 +1217,7 @@ function buildGuidance(question: ResearchQuestion, domain: Domain, literature: L
       { title: "Treating search results as a conclusion", detail: "A relevance-ranked record is a lead. Read the original methods, population, results, and limitations." },
       { title: "Leaving the outcome vague", detail: `Turn “${question.outcome}” into one measurable primary outcome before choosing a design.` },
       { title: "Overlooking source differences", detail: "Do not combine studies with different populations, definitions, or measures without explaining the differences." },
-      { title: "Confusing guidance with evidence", detail: "MIDAS planning suggestions are separate from retrieved source claims and need expert review." },
+       { title: "Confusing guidance with evidence", detail: "Invenio planning suggestions are separate from retrieved source claims and need expert review." },
       { title: "Making a claim the data cannot support", detail: "Match causal, diagnostic, predictive, or descriptive language to the actual design and evidence." },
     ],
     roadmap,
@@ -999,28 +1244,33 @@ export async function processResearchIdea(idea: string): Promise<ResearchProcess
   }
 
   const domain = detectDomain(originalIdea);
+  const understanding = buildUnderstanding(question, originalIdea);
+  const semanticExpansion = expandSemanticConcepts(originalIdea, question);
   const providers = sourceProviders(domain);
-  const query = createSearchQuery(question);
+  const query = createSearchQuery(question, semanticExpansion);
   const retrieved = await retrieveSources(query, providers);
   const rankedRecords = retrieved.records
-    .map((record) => ({ record, ranking: scoreRecord(record, question) }))
+    .map((record) => ({ record, ranking: scoreRecord(record, question, semanticExpansion) }))
     .sort((a, b) => b.ranking.score - a.ranking.score);
   const literature = rankedRecords.map(({ record, ranking }) => toLiteratureItem(record, question, ranking));
-  const guidance = buildGuidance(question, domain, literature, retrieved.errors);
+  const landscape = buildResearchLandscape(question, semanticExpansion, literature);
+  const guidance = buildGuidance(question, domain, literature, retrieved.errors, landscape);
   return {
     question,
+    understanding,
+    semanticExpansion,
     domain,
     sourcePlan: {
       providers,
       query,
       retrievedAt: new Date().toISOString(),
-      note: "Records below are retrieved from the named scholarly providers. MIDAS guidance is generated separately from the structured question and search results.",
+      note: "Records below are retrieved from the named scholarly providers. Invenio first builds a structured understanding and semantic expansion, then generates landscape and roadmap guidance separately from the source set.",
     },
     literature,
     ...guidance,
     searchStrategy: {
       keywords: question.keywords,
-      booleanQuery: question.keywords.length > 1 ? question.keywords.map((keyword) => `"${keyword}"`).join(" AND ") : `"${question.topic}"`,
+      booleanQuery: semanticExpansion.searchAnchors.slice(0, 6).map((anchor) => `"${anchor}"`).join(" OR "),
       databases: providers,
     },
   };

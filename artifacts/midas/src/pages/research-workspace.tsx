@@ -120,6 +120,85 @@ function BulletList({
   );
 }
 
+function ResearchLandscapeSection({ result }: WorkspaceProps) {
+  const { understanding, semanticExpansion, researchLandscape } = result;
+  if (!understanding || !semanticExpansion || !researchLandscape) return null;
+
+  return (
+    <section className="mb-9 space-y-6" data-testid="workspace-section-research-landscape">
+      <SectionHeading
+        eyebrow="Research understanding · before the roadmap"
+        title="See the landscape before choosing the route."
+        description="Invenio first models the whole idea, expands its meaning, and then reads the retrieved literature for themes, evidence, and gaps."
+      >
+        <PrototypeTag>Landscape from retrieved evidence</PrototypeTag>
+      </SectionHeading>
+      <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+        <article className="rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:p-7">
+          <div className="flex items-center gap-2 text-[#168e98]"><Sparkles size={17} /><h3 className="font-semibold text-[#17304a]">Invenio&apos;s working understanding</h3></div>
+          <p className="mt-5 text-sm leading-6 text-[#607987]">{understanding.objective}</p>
+          <div className="mt-6 grid gap-5 sm:grid-cols-2">
+            <Field label="Domain" value={understanding.domain} />
+            <Field label="Population" value={understanding.population} />
+            <Field label="Outcomes" value={understanding.outcomes.join(' · ') || 'To be defined'} />
+            <Field label="Stakeholders" value={understanding.stakeholders.join(' · ')} />
+          </div>
+          <div className="mt-6 border-t border-[#edf2f3] pt-5">
+            <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#bb8643]">Key concerns / constraints</p>
+            <p className="mt-2 text-sm leading-6 text-[#705c3d]">{understanding.keyConcerns.join(' · ')}</p>
+          </div>
+        </article>
+        <article className="rounded-2xl border border-[#cfe2e3] bg-[#eef8f8] p-5 sm:p-7">
+          <div className="flex items-center gap-2 text-[#168e98]"><Search size={17} /><h3 className="font-semibold text-[#17304a]">Semantic expansion</h3></div>
+          <p className="mt-4 text-sm leading-6 text-[#607987]">{semanticExpansion.explanation}</p>
+          <div className="mt-5 flex flex-wrap gap-2">
+            {semanticExpansion.relatedConcepts.map((concept) => <span key={concept} className="rounded-full border border-[#bfe5e3] bg-white/75 px-2.5 py-1 text-xs text-[#4c6874]">{concept}</span>)}
+          </div>
+          <p className="mt-5 font-mono text-[9px] uppercase tracking-[0.15em] text-[#168e98]">Search by meaning · {semanticExpansion.searchAnchors.length} semantic anchors</p>
+        </article>
+      </div>
+      <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+        <article className="rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:p-7">
+          <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#168e98]">What is already known</p>
+          <ul className="mt-4 space-y-3">
+            {researchLandscape.whatIsKnown.map((item) => <li key={item} className="flex items-start gap-2.5 text-sm leading-6 text-[#607987]"><CheckCircle2 size={15} className="mt-1 shrink-0 text-[#168e98]" /><span>{item}</span></li>)}
+          </ul>
+          <div className="mt-7 border-t border-[#edf2f3] pt-5">
+            <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#168e98]">Major themes / subfields</p>
+            <div className="mt-3 space-y-3">
+              {researchLandscape.majorThemes.map((theme) => <div key={theme.name} className="flex items-start justify-between gap-4"><div><p className="text-sm font-semibold text-[#17304a]">{theme.name}</p><p className="mt-1 text-xs leading-5 text-[#71818c]">{theme.description}</p></div><span className="shrink-0 rounded-full bg-[#f0f6f6] px-2 py-1 font-mono text-[9px] text-[#607987]">{theme.evidenceCount}</span></div>)}
+            </div>
+          </div>
+        </article>
+        <article className="rounded-2xl border border-[#eadbbd] bg-[#fffaf0] p-5 sm:p-7">
+          <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#bb8643]">Research gaps</p>
+          <div className="mt-5 space-y-5 text-sm leading-6 text-[#705c3d]">
+            <p><strong className="font-semibold text-[#5f4d31]">Saturated:</strong> {researchLandscape.saturatedAreas.join(' · ')}</p>
+            <p><strong className="font-semibold text-[#5f4d31]">Underexplored:</strong> {researchLandscape.underexploredAreas.join(' · ')}</p>
+            <p><strong className="font-semibold text-[#5f4d31]">Conflicting findings:</strong> {researchLandscape.conflictingFindings.join(' ')}</p>
+          </div>
+        </article>
+      </div>
+      <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+        <article className="rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:p-7">
+          <div className="flex items-center justify-between gap-4"><p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#168e98]">Key papers to read first</p><span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#8aa0a7]">{researchLandscape.keyPapers.length} anchors</span></div>
+          <div className="mt-4 space-y-3">
+            {researchLandscape.keyPapers.length ? researchLandscape.keyPapers.map((paper) => <a key={paper.id} href={paper.sourceUrl} target="_blank" rel="noreferrer" className="block rounded-xl border border-[#edf2f3] p-3 transition hover:border-[#bfe5e3]"><p className="text-sm font-semibold leading-5 text-[#17304a]">{paper.title}</p><p className="mt-1 text-xs text-[#7b8d95]">{paper.authors} · {paper.year ?? 'Year not listed'} · {paper.relevanceScore ?? 0}/100 relevance</p></a>) : <p className="text-sm text-[#607987]">No key papers were returned for this landscape yet.</p>}
+          </div>
+        </article>
+        <article className="rounded-2xl border border-[#d7e5e8] bg-white p-5 sm:p-7">
+          <p className="font-mono text-[9px] uppercase tracking-[0.15em] text-[#168e98]">What to investigate next</p>
+          <div className="mt-4 space-y-3 text-sm leading-6 text-[#607987]">
+            {researchLandscape.emergingAreas.map((area) => <p key={`emerging-${area}`}><strong className="font-semibold text-[#17304a]">Emerging:</strong> {area}</p>)}
+            {researchLandscape.promisingDirections.map((direction) => <p key={direction}><strong className="font-semibold text-[#17304a]">Direction:</strong> {direction}</p>)}
+          </div>
+          <p className="mt-5 border-t border-[#edf2f3] pt-4 text-xs leading-5 text-[#8a9ba3]">{researchLandscape.caveat}</p>
+        </article>
+      </div>
+    </section>
+  );
+}
+
 function QuestionSection({ result }: WorkspaceProps) {
   const { question } = result;
   return (
@@ -684,9 +763,11 @@ export default function ResearchWorkspace({ result }: WorkspaceProps) {
           <button type="button" onClick={() => setLocation('/research')} className="mt-4 inline-flex items-center gap-2 text-xs font-semibold text-[#17304a] transition hover:text-[#168e98] sm:mt-0">Edit idea <ArrowRight size={14} /></button>
         </div>
 
+         <ResearchLandscapeSection result={result} />
+
         <section className="rounded-2xl border border-[#d7e5e8] bg-[#fbfdfd] p-4 shadow-[0_24px_70px_-55px_rgba(23,48,74,0.55)] sm:p-6 lg:p-8" data-testid="workspace-roadmap-panel">
           <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-            <div><SectionLabel>Interactive Research Roadmap</SectionLabel><h2 className="text-lg font-semibold text-[#17304a]">Move through the work in order—or jump where you need to.</h2></div>
+             <div><SectionLabel>Roadmap grounded in the landscape</SectionLabel><h2 className="text-lg font-semibold text-[#17304a]">Move from evidence and gaps into a focused plan.</h2></div>
             <span className="flex items-center gap-2 text-xs text-[#71838b]"><span className="size-2 rounded-full bg-[#8fe6e2]" /> Current step is highlighted</span>
           </div>
           <InteractiveRoadmap activeStepId={activeStep.id} onSelect={selectStep} roadmap={result.roadmap} />

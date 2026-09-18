@@ -19,6 +19,21 @@ export type ResearchQuestionData = {
   clarifications?: string[];
 };
 
+export type ResearchUnderstanding = {
+  objective: string;
+  domain: string;
+  population: string;
+  outcomes: string[];
+  keyConcerns: string[];
+  stakeholders: string[];
+};
+
+export type SemanticExpansion = {
+  relatedConcepts: string[];
+  searchAnchors: string[];
+  explanation: string;
+};
+
 export type LiteratureItem = {
   id: string;
   title: string;
@@ -98,8 +113,30 @@ export type RoadmapItem = {
   evidenceAnchor: string;
 };
 
+export type ResearchTheme = {
+  name: string;
+  description: string;
+  evidenceCount: number;
+  paperIds: string[];
+};
+
+export type ResearchLandscape = {
+  majorThemes: ResearchTheme[];
+  whatIsKnown: string[];
+  keyPapers: LiteratureItem[];
+  emergingAreas: string[];
+  saturatedAreas: string[];
+  underexploredAreas: string[];
+  conflictingFindings: string[];
+  promisingDirections: string[];
+  caveat: string;
+};
+
 export type ResearchResult = {
   question: ResearchQuestionData;
+  understanding?: ResearchUnderstanding;
+  semanticExpansion?: SemanticExpansion;
+  researchLandscape?: ResearchLandscape;
   domain?: string;
   sourcePlan?: {
     providers: string[];
