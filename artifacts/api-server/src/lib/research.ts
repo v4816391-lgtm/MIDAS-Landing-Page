@@ -13,28 +13,48 @@ type Domain =
   | "humanities"
   | "law / policy"
   | "business"
-  | "interdisciplinary";
+  | "interdisciplinary"
+  | "unknown";
 
-type ResearchQuestion = {
+export type ResearchProfile = {
   originalIdea: string;
+  researchField: string;
+  researchSubfield: string;
+  population: string;
+  studySystem: string;
+  exposure: string;
+  intervention: string;
+  predictor: string;
+  outcome: string;
+  technology: string;
+  method: string;
+  dataType: string;
+  researchIntent: string;
   researchQuestion: string;
-  refinedQuestion: string;
-  domain: Domain;
-  subdomain: string;
+  researchRelationship: {
+    type: string;
+    predictor: string;
+    outcome: string;
+    description: string;
+  };
+  likelyStudyDesigns: string[];
+  scientificSynonyms: string[];
+  conceptSynonyms: Array<{ concept: string; synonyms: string[] }>;
+  missingInformation: string[];
   topic: string;
   subject: string;
   researchObjective: string;
-  technology: string;
-  dataType: string;
   researchTask: string;
-  population: string;
-  exposure: string;
-  outcome: string;
   researchType: string;
-  keyConcepts: string[];
+  domain: Domain;
+  subdomain: string;
+  refinedQuestion: string;
   keywords: string[];
+  keyConcepts: string[];
   clarifications: string[];
 };
+
+type ResearchQuestion = ResearchProfile;
 
 type LiteratureItem = {
   id: string;
@@ -64,6 +84,7 @@ type RoadmapItem = {
 };
 
 export type ResearchResult = {
+  researchProfile: ResearchProfile;
   question: ResearchQuestion;
   domain: Domain;
   sourcePlan: {
@@ -471,14 +492,206 @@ function extractQuestion(idea: string): ResearchQuestion {
   };
 }
 
-function isTooBroad(idea: string, question: ResearchQuestion) {
-  const tokens = tokenize(idea);
-  const broadTerms = new Set(["health", "technology", "education", "business", "biology", "science", "research", "society"]);
-  return (
-    tokens.length < 3 ||
-    (tokens.length <= 4 && tokens.some((token) => broadTerms.has(token))) ||
-    question.subject === "To be defined"
-  );
+function readProfileString(value: unknown, fallback = "unknown") {
+  return typeof value === "string" && value.trim() ? value.trim() : fallback;
+}
+
+function readProfileArray(value: unknown, fallback: string[] = []) {
+  if (!Array.isArray(value)) return fallback;
+  return unique(value.filter((item): item is string => typeof item === "string" && item.trim()).map((item) => item.trim()));
+}
+
+function readConceptSynonyms(value: unknown) {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (!item || typeof item !== "object") return [];
+    const record = item as { concept?: unknown; synonyms?: unknown };
+    const concept = readProfileString(record.concept);
+    const synonyms = readProfileArray(record.synonyms);
+    return concept === "unknown" ? [] : [{ concept, synonyms }];
+  });
+}
+
+function normalizeDomain(value: string): Domain {
+  const domainValues: Domain[] = [
+    "medicine",
+    "biology",
+    "chemistry",
+    "physics",
+    "computer science / AI",
+    "mathematics",
+    "psychology",
+    "social sciences",
+    "education",
+    "environmental science",
+    "engineering",
+    "humanities",
+    "law / policy",
+    "business",
+    "interdisciplinary",
+    "unknown",
+  ];
+  const normalized = value.toLowerCase();
+  return domainValues.find((domain) => domain.toLowerCase() === normalized) ?? "unknown";
+}
+
+function normalizeResearchProfile(idea: string, payload: Record<string, unknown>): ResearchProfile {
+  const researchField = readProfileString(payload.researchField);
+  const researchSubfield = readProfileString(payload.researchSubfield);
+  const population = readProfileString(payload.population);
+  const studySystem = readProfileString(payload.studySystem);
+  const exposure = readProfileString(payload.exposure);
+  const intervention = readProfileString(payload.intervention);
+  const predictor = readProfileString(payload.predictor);
+  const outcome = readProfileString(payload.outcome);
+  const technology = readProfileString(payload.technology);
+  const method = readProfileString(payload.method);
+  const dataType = readProfileString(payload.dataType);
+  const researchIntent = readProfileString(payload.researchIntent);
+  const researchQuestion = readProfileString(payload.researchQuestion, idea);
+  const relationshipPayload = payload.researchRelationship && typeof payload.researchRelationship === "object"
+    ? payload.researchRelationship as Record<string, unknown>
+    : {};
+  const relationshipPredictor = readProfileString(relationshipPayload.predictor, predictor !== "unknown" ? predictor : exposure !== "unknown" ? exposure : intervention);
+  const relationshipOutcome = readProfileString(relationshipPayload.outcome, outcome);
+  const likelyStudyDesigns = readProfileArray(payload.likelyStudyDesigns, ["unknown"]);
+  const keyConcepts = readProfileArray(payload.keyConcepts, ["unknown"]);
+  const scientificSynonyms = readProfileArray(payload.scientificSynonyms);
+  const conceptSynonyms = readConceptSynonyms(payload.conceptSynonyms);
+  const missingInformation = readProfileArray(payload.missingInformation);
+  const topic = readProfileString(payload.topic);
+  const subject = readProfileString(payload.subject, topic);
+  const researchTask = readProfileString(payload.researchTask, readProfileString(relationshipPayload.type));
+  const researchType = readProfileString(payload.researchType, likelyStudyDesigns[0] ?? "unknown");
+  const keywords = readProfileArray(payload.keywords, unique([...keyConcepts, ...scientificSynonyms]));
+
+  return {
+    originalIdea: idea,
+    researchField,
+    researchSubfield,
+    population,
+    studySystem,
+    exposure,
+    intervention,
+    predictor,
+    outcome,
+    technology,
+    method,
+    dataType,
+    researchIntent,
+    researchQuestion,
+    researchRelationship: {
+      type: readProfileString(relationshipPayload.type, researchTask),
+      predictor: relationshipPredictor,
+      outcome: relationshipOutcome,
+      description: readProfileString(
+        relationshipPayload.description,
+        `${relationshipPredictor} → ${relationshipOutcome}`,
+      ),
+    },
+    likelyStudyDesigns,
+    keyConcepts,
+    scientificSynonyms,
+    conceptSynonyms,
+    missingInformation,
+    topic,
+    subject,
+    researchObjective: researchIntent,
+    researchTask,
+    researchType,
+    domain: normalizeDomain(researchField),
+    subdomain: researchSubfield,
+    refinedQuestion: researchQuestion,
+    keywords,
+    clarifications: missingInformation,
+  };
+}
+
+async function understandResearchIdea(idea: string): Promise<ResearchProfile> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Whole research idea understanding is unavailable because the OpenAI workspace secret is not configured.");
+  }
+
+  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${apiKey}`,
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "gpt-4.1-mini",
+      response_format: { type: "json_object" },
+      max_tokens: 1800,
+      messages: [
+        {
+          role: "system",
+          content: [
+            "You are MIDAS Whole Research Idea Understanding.",
+            "Analyze the user's entire research idea as one semantic unit. Preserve who/what is being studied, the predictor or exposure, the outcome, and the relationship between them.",
+            "Do not reduce a relational question to isolated keywords. Do not search literature or recommend journals. Do not invent missing facts.",
+            "For every missing or unclear field, use the exact string \"unknown\" and add a concise item to missingInformation.",
+            "Return JSON only with this shape:",
+            JSON.stringify({
+              researchField: "string",
+              researchSubfield: "string",
+              topic: "relationship-preserving topic label",
+              population: "string",
+              studySystem: "string",
+              exposure: "string",
+              intervention: "string",
+              predictor: "string",
+              outcome: "string",
+              technology: "string",
+              method: "string",
+              dataType: "string",
+              researchIntent: "string",
+              researchQuestion: "string",
+              researchRelationship: {
+                type: "string",
+                predictor: "string",
+                outcome: "string",
+                description: "predictor or exposure → outcome in population or study system",
+              },
+              likelyStudyDesigns: ["string"],
+              keyConcepts: ["string"],
+              scientificSynonyms: ["string"],
+              conceptSynonyms: [{ concept: "string", synonyms: ["string"] }],
+              missingInformation: ["string"],
+              researchTask: "string",
+              researchType: "string",
+              keywords: ["string"],
+            }),
+            "The original wording must be preserved in researchQuestion when it is already a valid question; do not rewrite it into a narrower question.",
+          ].join("\n"),
+        },
+        { role: "user", content: idea },
+      ],
+    }),
+    signal: AbortSignal.timeout(30000),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Whole research idea understanding failed with OpenAI status ${response.status}.`);
+  }
+  const data = await response.json() as {
+    choices?: Array<{ message?: { content?: string | null } }>;
+  };
+  const content = data.choices?.[0]?.message?.content;
+  if (!content) throw new Error("Whole research idea understanding returned no structured profile.");
+  try {
+    const parsed = JSON.parse(content) as unknown;
+    if (!parsed || typeof parsed !== "object") throw new Error("profile was not an object");
+    return normalizeResearchProfile(idea, parsed as Record<string, unknown>);
+  } catch {
+    throw new Error("Whole research idea understanding returned invalid structured JSON.");
+  }
+}
+
+function isTooBroad(question: ResearchProfile) {
+  const unknownCoreFields = [question.topic, question.population, question.outcome, question.researchIntent]
+    .filter((field) => field === "unknown").length;
+  return question.topic === "unknown" || unknownCoreFields >= 3;
 }
 
 function sourceProviders(domain: Domain) {
@@ -989,8 +1202,8 @@ export async function processResearchIdea(idea: string): Promise<ResearchProcess
     };
   }
 
-  const question = extractQuestion(originalIdea);
-  if (isTooBroad(originalIdea, question)) {
+  const researchProfile = await understandResearchIdea(originalIdea);
+  if (isTooBroad(researchProfile)) {
     return {
       needsNarrowing: true,
       message: "This idea is too broad for a trustworthy literature search yet.",
@@ -998,7 +1211,8 @@ export async function processResearchIdea(idea: string): Promise<ResearchProcess
     };
   }
 
-  const domain = detectDomain(originalIdea);
+  const question = researchProfile;
+  const domain = researchProfile.domain;
   const providers = sourceProviders(domain);
   const query = createSearchQuery(question);
   const retrieved = await retrieveSources(query, providers);
@@ -1008,6 +1222,7 @@ export async function processResearchIdea(idea: string): Promise<ResearchProcess
   const literature = rankedRecords.map(({ record, ranking }) => toLiteratureItem(record, question, ranking));
   const guidance = buildGuidance(question, domain, literature, retrieved.errors);
   return {
+    researchProfile,
     question,
     domain,
     sourcePlan: {

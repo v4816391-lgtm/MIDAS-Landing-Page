@@ -1,5 +1,22 @@
 export type ResearchQuestionData = {
   originalIdea: string;
+  researchField?: string;
+  researchSubfield?: string;
+  studySystem?: string;
+  intervention?: string;
+  predictor?: string;
+  method?: string;
+  researchIntent?: string;
+  researchRelationship?: {
+    type: string;
+    predictor: string;
+    outcome: string;
+    description: string;
+  };
+  likelyStudyDesigns?: string[];
+  scientificSynonyms?: string[];
+  conceptSynonyms?: Array<{ concept: string; synonyms: string[] }>;
+  missingInformation?: string[];
   researchQuestion?: string;
   refinedQuestion: string;
   domain?: string;
@@ -99,6 +116,7 @@ export type RoadmapItem = {
 };
 
 export type ResearchResult = {
+  researchProfile: ResearchQuestionData;
   question: ResearchQuestionData;
   domain?: string;
   sourcePlan?: {

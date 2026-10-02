@@ -201,6 +201,17 @@ function QuestionSection({ result }: WorkspaceProps) {
           )}
         </div>
       </div>
+      <details open className="rounded-2xl border border-dashed border-[#b8ced2] bg-[#f4f8f8] p-5 sm:p-7" data-testid="debug-research-profile">
+        <summary className="cursor-pointer list-none font-mono text-[10px] uppercase tracking-[0.16em] text-[#168e98]">
+          Temporary debug · Whole Research Idea Understanding
+        </summary>
+        <p className="mt-3 max-w-3xl text-sm leading-6 text-[#607987]">
+          This is the exact normalized ResearchProfile returned by the understanding layer. It is shown temporarily so relationship preservation and unknown fields can be inspected before downstream modules are migrated.
+        </p>
+        <pre className="mt-5 max-h-[32rem] overflow-auto rounded-xl bg-[#17304a] p-4 text-[11px] leading-5 text-[#d9f1ef]">
+          {JSON.stringify(result.researchProfile ?? question, null, 2)}
+        </pre>
+      </details>
     </section>
   );
 }
