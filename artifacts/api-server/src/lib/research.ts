@@ -267,7 +267,7 @@ const DOMAIN_RULES: Array<{ domain: Domain; terms: string[] }> = [
   },
   {
     domain: "environmental science",
-    terms: ["climate", "pollution", "air quality", "water", "soil", "environment", "biodiversity", "emission", "temperature", "urban heat", "tree", "canopy", "green space", "microplastic", "marine", "ecosystem", "ocean"],
+    terms: ["climate", "pollution", "air quality", "water", "soil", "environment", "biodiversity", "emission", "temperature", "urban heat", "tree", "canopy", "green space", "microplastic", "marine"],
   },
   {
     domain: "engineering",
@@ -296,7 +296,7 @@ function unique(values: string[]) {
 }
 
 function stripPunctuation(value: string) {
-  return value.replace(/^[("'“”]+|[.,!?;:)("'“”]+$/g, "").trim();
+  return value.replace(/^[("'“”]+|[.,!?;:)\("'“”]+$/g, "").trim();
 }
 
 function titleCase(value: string) {
@@ -421,41 +421,42 @@ function extractQuestion(idea: string): ResearchQuestion {
   const technology = /(artificial intelligence|machine learning|\bai\b|algorithm|deep learning)/.test(lowerIdea)
     ? "Artificial intelligence / machine learning"
     : /(crispr|gene edit)/.test(lowerIdea)
-      ? "CRISPR-based gene editing"
-      : /(air pollution|pm2.5|nitrogen dioxide)/.test(lowerIdea)
-        ? "Ambient air pollution exposure"
-        : isEcologyRelationship
-          ? "Microplastics exposure"
-        : isTreatment
-          ? "Treatment or intervention"
-          : "To be defined";
+    ? "CRISPR-based gene editing"
+    : /(air pollution|pm2.5|nitrogen dioxide)/.test(lowerIdea)
+    ? "Ambient air pollution exposure"
+    : isEcologyRelationship
+    ? "Microplastics exposure"
+    : isTreatment
+    ? "Treatment or intervention"
+    : "To be defined";
   const researchTask = isDetection
     ? "Detection / diagnosis"
     : isTreatment
-      ? "Treatment or intervention evaluation"
-      : isEffect
-        ? "Exposure–outcome association"
-        : "Research task to be defined";
+    ? "Treatment or intervention evaluation"
+    : isEffect
+    ? "Exposure–outcome association"
+    : "Research task to be defined";
   const extractedOutcome = effectMatch?.[2] ? titleCase(stripPunctuation(effectMatch[2])) : undefined;
-  const outcome = extractedOutcome ?? (isDetection
-    ? "Diagnostic/detection performance"
-    : /(asthma|symptom|health outcome)/.test(lowerIdea)
+  const outcome =
+    extractedOutcome ?? (isDetection
+      ? "Diagnostic/detection performance"
+      : /(asthma|symptom|health outcome)/.test(lowerIdea)
       ? "Health symptoms or clinical events"
       : isEcologyRelationship
-        ? "Marine ecosystem health and ecological indicators"
+      ? "Marine ecosystem health and ecological indicators"
       : isTreatment
-        ? "Treatment response and safety"
-        : "To be defined");
+      ? "Treatment response and safety"
+      : "To be defined");
   const extractedExposure = effectMatch?.[1] ? titleCase(stripPunctuation(effectMatch[1])) : undefined;
   const exposure = technology === "To be defined" ? extractedExposure ?? "Primary exposure or intervention to be defined" : technology;
   const topic = isEcologyRelationship ? "Microplastics and marine ecosystems" : subject === "To be defined" ? titleCase(tokens.slice(0, 6).join(" ")) : subject;
   const researchObjective = isDetection
     ? `Evaluate whether ${technology.toLowerCase()} can detect or diagnose ${topic.toLowerCase()} using ${dataType.toLowerCase()}.`
     : isTreatment
-      ? `Evaluate the response, safety, or feasibility of the proposed treatment for ${topic.toLowerCase()}.`
-      : isEffect
-        ? `Characterize how ${exposure.toLowerCase()} relates to ${outcome === "To be defined" ? "a measurable outcome" : outcome.toLowerCase()} in ${population.toLowerCase()}.`
-        : `Explore ${topic.toLowerCase()} while defining a testable objective.`;
+    ? `Evaluate the response, safety, or feasibility of the proposed treatment for ${topic.toLowerCase()}.`
+    : isEffect
+    ? `Characterize how ${exposure.toLowerCase()} relates to ${outcome === "To be defined" ? "a measurable outcome" : outcome.toLowerCase()} in ${population.toLowerCase()}.`
+    : `Explore ${topic.toLowerCase()} while defining a testable objective.`;
   const subdomain = inferSubdomain(idea, domain, dataType);
   const clarifications = clarificationList({ population, outcome, dataType, researchTask, technology });
   const keywords = unique([topic, subdomain, technology, dataType, population, outcome, ...tokens]).filter(
@@ -482,10 +483,10 @@ function extractQuestion(idea: string): ResearchQuestion {
         ? "AI model development, validation, and diagnostic-performance evaluation"
         : "Diagnostic accuracy / model evaluation"
       : isTreatment
-        ? "Interventional or treatment evaluation"
-        : isEffect
-          ? "Observational exposure–outcome research"
-          : "Exploratory research design to be defined",
+      ? "Interventional or treatment evaluation"
+      : isEffect
+      ? "Observational exposure–outcome research"
+      : "Exploratory research design to be defined",
     keyConcepts: unique([subject, subdomain, technology, dataType, researchTask, outcome, ...tokens]).slice(0, 12),
     keywords: keywords.slice(0, 12),
     clarifications,
@@ -550,7 +551,7 @@ function normalizeResearchProfile(idea: string, payload: Record<string, unknown>
   const researchIntent = readProfileString(payload.researchIntent);
   const researchQuestion = readProfileString(payload.researchQuestion, idea);
   const relationshipPayload = payload.researchRelationship && typeof payload.researchRelationship === "object"
-    ? payload.researchRelationship as Record<string, unknown>
+    ? (payload.researchRelationship as Record<string, unknown>)
     : {};
   const relationshipPredictor = readProfileString(relationshipPayload.predictor, predictor !== "unknown" ? predictor : exposure !== "unknown" ? exposure : intervention);
   const relationshipOutcome = readProfileString(relationshipPayload.outcome, outcome);
@@ -674,7 +675,7 @@ async function understandResearchIdea(idea: string): Promise<ResearchProfile> {
   if (!response.ok) {
     throw new Error(`Whole research idea understanding failed with OpenAI status ${response.status}.`);
   }
-  const data = await response.json() as {
+  const data = (await response.json()) as {
     choices?: Array<{ message?: { content?: string | null } }>;
   };
   const content = data.choices?.[0]?.message?.content;
@@ -897,7 +898,7 @@ function scoreRecord(record: SourceRecord, question: ResearchQuestion) {
   const scoreField = (label: string, value: string, weight: number) => {
     if (value === "To be defined") return;
     const fieldTerms = searchableTerms(value);
-    const matchedTerms = fieldTerms.filter((term) => term.includes(" ") ? searchableText.includes(term) : searchableTokens.has(term));
+    const matchedTerms = fieldTerms.filter((term) => (term.includes(" ") ? searchableText.includes(term) : searchableTokens.has(term)));
     const phraseMatch = value.length > 4 && searchableText.includes(value.toLowerCase());
     if (phraseMatch || matchedTerms.length >= Math.max(1, Math.ceil(fieldTerms.length * 0.4))) {
       score += phraseMatch ? weight : Math.round(weight * Math.min(1, matchedTerms.length / Math.max(1, fieldTerms.length)));
@@ -925,10 +926,10 @@ function scoreRecord(record: SourceRecord, question: ResearchQuestion) {
   const tier = normalizedScore >= 70
     ? RELEVANCE_TIERS.direct
     : normalizedScore >= 50
-      ? RELEVANCE_TIERS.high
-      : normalizedScore >= 30
-        ? RELEVANCE_TIERS.method
-        : RELEVANCE_TIERS.background;
+    ? RELEVANCE_TIERS.high
+    : normalizedScore >= 30
+    ? RELEVANCE_TIERS.method
+    : RELEVANCE_TIERS.background;
   return {
     score: normalizedScore,
     tier,
@@ -970,9 +971,9 @@ function derivePotentialGaps(question: ResearchQuestion, literature: LiteratureI
   const countMatches = (value: string) =>
     value === "To be defined" ? 0 : searchable.filter((text) => searchableTerms(value).some((term) => text.includes(term))).length;
   const gaps = [
-    `Potential gap: ${countMatches(question.dataType)} of ${literature.length} retrieved records explicitly mention the proposed data type (${question.dataType}); verify full-text methods before concluding that it is under-studied.`,
-    `Potential gap: ${countMatches(question.population)} of ${literature.length} retrieved records explicitly mention the target population (${question.population}); check eligibility and subgroup coverage in the original papers.`,
-    `Potential gap: ${countMatches(question.outcome)} of ${literature.length} retrieved records explicitly mention the intended outcome (${question.outcome}); compare outcome definitions before synthesizing findings.`,
+    `Potential gap: ${countMatches(question.dataType)} of ${literature.length} retrieved records explicitly mention the proposed data type (${question.dataType}); verify full-text methods before claiming a gap.`,
+    `Potential gap: ${countMatches(question.population)} of ${literature.length} retrieved records explicitly mention the target population (${question.population}); check eligibility and subgroup definitions before claiming a gap.`,
+    `Potential gap: ${countMatches(question.outcome)} of ${literature.length} retrieved records explicitly mention the intended outcome (${question.outcome}); compare outcome definitions before screening full text.`,
   ];
   if (literature.filter((item) => item.relevanceTier === "Directly relevant").length === 0) {
     gaps.push("Potential gap: no returned record crossed the direct-relevance threshold for all available fields; screen additional sources and full text before designing the study.");
@@ -994,7 +995,7 @@ function buildJournalRecommendations(question: ResearchQuestion, literature: Lit
       return {
         name,
         area: question.subdomain,
-        reason: `Ranked from ${papers.length} retrieved source record${papers.length === 1 ? "" : "s"} in this journal. The strongest observed record matched ${evidencePaper.relevanceReason.replace(/\.$/, "")}. Check the journal’s current scope and article requirements directly.`,
+        reason: `Ranked from ${papers.length} retrieved source record${papers.length === 1 ? "" : "s"} in this journal. The strongest observed record matched ${evidencePaper.relevanceReason.replace(/\n/g, " ")}.`,
         source: evidencePaper.source,
         evidence: `${evidencePaper.title}${evidencePaper.year ? ` (${evidencePaper.year})` : ""} · ${evidencePaper.identifier ?? evidencePaper.doi ?? "source identifier not provided"}`,
         originalJournalLink: evidencePaper.journalUrl ?? "",
@@ -1006,8 +1007,8 @@ function buildJournalRecommendations(question: ResearchQuestion, literature: Lit
   return {
     journals,
     note: journals.length
-      ? "Journal candidates are real venues observed in the ranked source set. Scores are screening scores derived from complete-representation matches in retrieved records, not acceptance probabilities; verify journal scope directly."
-      : "Reliable journal evidence is insufficient in the retrieved set. MIDAS will not invent journal names or scores; identify venues after screening the original records and checking current scope pages.",
+      ? "Journal candidates are real venues observed in the ranked source set. Scores are screening scores derived from complete-representation matches in retrieved records, not acceptance probabilities.",
+      : "Reliable journal evidence is insufficient in the retrieved set. MIDAS will not invent journal names or scores; identify venues after screening the original records and checking current editorial scopes.",
   };
 }
 
@@ -1018,7 +1019,7 @@ function buildGuidance(question: ResearchQuestion, domain: Domain, literature: L
   const isAiDiagnostic = question.technology === "Artificial intelligence / machine learning" && question.researchTask === "Detection / diagnosis";
   const isMarineEcology = /microplastic|marine ecosystem/i.test(`${question.topic} ${question.dataType}`);
   const evidenceNote = literature.length
-    ? `The ranked set contains ${literature.length} retrieved record${literature.length === 1 ? "" : "s"} for ${question.researchObjective}. Use it as a starting set; the strongest evidence and potential gaps still need full-text review.`
+    ? `The ranked set contains ${literature.length} retrieved record${literature.length === 1 ? "" : "s"} for ${question.researchObjective}. Use it as a starting set; the strongest evidence and identified gaps require full-text screening.`
     : `No source records were returned for ${topic}; narrow the query or try again before making a literature-based decision.`;
   const commonMethodologies = isAiDiagnostic
     ? [
@@ -1040,57 +1041,57 @@ function buildGuidance(question: ResearchQuestion, domain: Domain, literature: L
         id: "diagnostic-performance",
         name: "Diagnostic-performance evaluation",
         fit: `Evaluate ${question.outcome.toLowerCase()} against a prespecified clinical reference standard, rather than treating model development metrics as diagnostic evidence.`,
-        advantages: ["Connects predictions to a clinically interpretable reference", "Supports sensitivity, specificity, calibration, and threshold reporting", "Makes intended use and error costs visible"],
+        advantages: ["Connects predictions to a clinically interpretable reference", "Supports sensitivity, specificity, calibration, and threshold reporting", "Makes intended use and error costs explicit"],
         limitations: ["Requires a defensible reference standard", "Performance depends on prevalence and case mix", "A promising metric does not establish clinical utility"],
       },
     ]
     : isMarineEcology
-      ? [
-        {
-          id: "exposure-characterization",
-          name: "Exposure characterization",
-          fit: `Measure ${question.exposure.toLowerCase()} in the relevant marine compartments and document site, season, sampling depth, and contamination controls.`,
-          advantages: ["Makes exposure comparable across sites", "Supports traceable laboratory and field procedures", "Separates detection from ecological interpretation"],
-          limitations: ["Microplastic measurement methods vary", "Sampling can miss spatial and temporal variation", "Laboratory contamination can bias estimates"],
-        },
-        {
-          id: "field-ecology",
-          name: "Comparative field ecology",
-          fit: `Compare ${question.outcome.toLowerCase()} across marine sites or gradients while accounting for habitat, season, and other environmental conditions.`,
-          advantages: ["Connects exposure measurements to real ecosystems", "Can reveal context and co-exposures", "Supports a feasible first ecological study"],
-          limitations: ["Observational comparisons do not prove causation", "Site differences can confound results", "Ecological outcomes may require repeated monitoring"],
-        },
-        {
-          id: "mesocosm-or-lab",
-          name: "Mesocosm or controlled exposure study",
-          fit: `Use a controlled marine-organism or mesocosm design only if the evidence review supports a specific ${question.exposure.toLowerCase()} level and measurable endpoint.`,
-          advantages: ["Provides control over exposure conditions", "Can test mechanisms and timing", "Complements field evidence"],
-          limitations: ["May not represent whole ecosystems", "Requires careful organism and welfare oversight", "Needs a justified exposure range"],
-        },
-      ]
-      : [
-    {
-      id: "focused-observational",
-      name: domain === "medicine" || domain === "environmental science" ? "Focused observational study" : "Focused empirical study",
-      fit: `A possible design for studying ${topic} with ${population.toLowerCase()} once the variables and comparison are specified.`,
-      advantages: ["Can reflect the setting of interest", "Makes the population and measures explicit", "Can be scoped for a first study"],
-      limitations: ["Confounding or selection bias may remain", "Needs a precise outcome definition", "Findings may not generalize beyond the sampled setting"],
-    },
-    {
-      id: "prospective-validation",
-      name: "Prospective validation or follow-up",
-      fit: `A useful option if the retrieved evidence suggests that timing, validation, or change over time matters for ${topic}.`,
-      advantages: ["Clarifies temporal sequence", "Tests feasibility in the intended setting", "Supports repeated measurement"],
-      limitations: ["Requires retention and a longer timeline", "Missing follow-up can bias results", "Needs a prespecified analysis plan"],
-    },
-    {
-      id: "review-or-synthesis",
-      name: "Structured evidence synthesis",
-      fit: `A defensible next step when the goal is to map what is known about ${topic} and identify a focused gap.`,
-      advantages: ["Makes the evidence landscape visible", "Can compare definitions and methods", "Useful before primary data collection"],
-      limitations: ["Search and screening decisions affect conclusions", "Source quality varies", "Does not replace primary evidence"],
-    },
-  ];
+    ? [
+      {
+        id: "exposure-characterization",
+        name: "Exposure characterization",
+        fit: `Measure ${question.exposure.toLowerCase()} in the relevant marine compartments and document site, season, sampling depth, and contamination controls.`,
+        advantages: ["Makes exposure comparable across sites", "Supports traceable laboratory and field procedures", "Separates detection from ecological interpretation"],
+        limitations: ["Microplastic measurement methods vary", "Sampling can miss spatial and temporal variation", "Laboratory contamination can bias estimates"],
+      },
+      {
+        id: "field-ecology",
+        name: "Comparative field ecology",
+        fit: `Compare ${question.outcome.toLowerCase()} across marine sites or gradients while accounting for habitat, season, and other environmental conditions.`,
+        advantages: ["Connects exposure measurements to real ecosystems", "Can reveal context and co-exposures", "Supports a feasible first ecological study"],
+        limitations: ["Observational comparisons do not prove causation", "Site differences can confound results", "Ecological outcomes may require repeated monitoring"],
+      },
+      {
+        id: "mesocosm-or-lab",
+        name: "Mesocosm or controlled exposure study",
+        fit: `Use a controlled marine-organism or mesocosm design only if the evidence review supports a specific ${question.exposure.toLowerCase()} level and measurable endpoint.`,
+        advantages: ["Provides control over exposure conditions", "Can test mechanisms and timing", "Complements field evidence"],
+        limitations: ["May not represent whole ecosystems", "Requires careful organism and welfare oversight", "Needs a justified exposure range"],
+      },
+    ]
+    : [
+      {
+        id: "focused-observational",
+        name: domain === "medicine" || domain === "environmental science" ? "Focused observational study" : "Focused empirical study",
+        fit: `A possible design for studying ${topic} with ${population.toLowerCase()} once the variables and comparison are specified.`,
+        advantages: ["Can reflect the setting of interest", "Makes the population and measures explicit", "Can be scoped for a first study"],
+        limitations: ["Confounding or selection bias may remain", "Needs a precise outcome definition", "Findings may not generalize beyond the sampled setting"],
+      },
+      {
+        id: "prospective-validation",
+        name: "Prospective validation or follow-up",
+        fit: `A useful option if the retrieved evidence suggests that timing, validation, or change over time matters for ${topic}.`,
+        advantages: ["Clarifies temporal sequence", "Tests feasibility in the intended setting", "Supports repeated measurement"],
+        limitations: ["Requires retention and a longer timeline", "Missing follow-up can bias results", "Needs a prespecified analysis plan"],
+      },
+      {
+        id: "review-or-synthesis",
+        name: "Structured evidence synthesis",
+        fit: `A defensible next step when the goal is to map what is known about ${topic} and identify a focused gap.`,
+        advantages: ["Makes the evidence landscape visible", "Can compare definitions and methods", "Useful before primary data collection"],
+        limitations: ["Search and screening decisions affect conclusions", "Source quality varies", "Does not replace primary evidence"],
+      },
+    ];
   const variables = [
     { name: question.exposure, type: "To be defined", role: "Primary exposure, intervention, or predictor" },
     { name: question.dataType, type: "Data structure to be defined", role: "Observed input or measurement source" },
@@ -1101,36 +1102,36 @@ function buildGuidance(question: ResearchQuestion, domain: Domain, literature: L
   const potentialGaps = derivePotentialGaps(question, literature);
   const journalRecommendations = buildJournalRecommendations(question, literature);
   const dataCollectionMethods = isAiDiagnostic && question.dataType === "Mammography images"
-    ? ["Define the image acquisition protocol and permissible modalities", "Create patient-level labels using a prespecified clinical reference standard", "Split data by patient and document site, device, image quality, and missingness", "Pilot annotation and adjudication before model development"]
+    ? ["Define the image acquisition protocol and permissible modalities", "Create patient-level labels using a prespecified clinical reference standard", "Split data by patient and document site provenance" ]
     : isAiDiagnostic && question.dataType === "Speech or voice recordings"
-      ? ["Define recording device, language, prompt, environment, and duration", "Create patient-level diagnostic labels using a prespecified reference standard", "Separate speakers across development and validation sets", "Pilot audio quality, consent, transcription, and missingness checks"]
+      ? ["Define recording device, language, prompt, environment, and duration", "Create patient-level diagnostic labels using a prespecified reference standard", "Separate speakers across development and validation sets"]
       : isMarineEcology
-        ? ["Define sampling compartments, sites, depth, season, and mesh or detection thresholds", "Use field blanks and laboratory contamination controls", "Pair microplastic measurements with prespecified ecosystem indicators", "Record permits, weather, habitat, and co-exposures"]
-        : ["Use the measurement procedure supported by the retrieved evidence", "Pilot the collection workflow", "Record protocol deviations and missingness", "Securely document source and collection dates"];
+        ? ["Define sampling compartments, sites, depth, season, and mesh or detection thresholds", "Use field blanks and laboratory contamination controls", "Pair microplastic measurements with ecosystem indicators"]
+        : ["Use the measurement procedure supported by the retrieved evidence", "Pilot the collection workflow", "Record protocol deviations and missingness", "Securely document source and collection details"];
   const analysisStatistical = isAiDiagnostic
-    ? ["Separate model development, internal validation, and external diagnostic-performance evaluation", "Report sensitivity, specificity, ROC-AUC, calibration, confidence intervals, and threshold choices only when the reference standard and sample structure support them", "Compare performance across relevant subgroups, sites, devices, or acquisition conditions", "Do not select a final threshold or claim clinical utility before the evaluation plan is prespecified"]
+    ? ["Separate model development, internal validation, and external diagnostic-performance evaluation", "Report sensitivity, specificity, ROC-AUC, calibration, confidence intervals, and threshold selection"]
     : isMarineEcology
-      ? ["Describe microplastic concentration, polymer or particle characteristics, site, season, and ecosystem indicators", "Choose association or comparison methods after the sampling unit and repeated-measure structure are defined", "Account for habitat, season, site, and measured co-exposures where supported by the design", "Avoid causal language unless the design and assumptions justify it"]
-      : ["Choose descriptive summaries for each measurement scale", "Select association, comparison, prediction, or synthesis methods after the design is fixed", "Run sensitivity analyses for important definitions and assumptions", "Match inference to the sampling unit, missingness, measurement validity, and prespecified outcome"];
+      ? ["Describe microplastic concentration, polymer or particle characteristics, site, season, and ecosystem indicators", "Choose association or comparison methods after the sampling unit and design are defined"]
+      : ["Choose descriptive summaries for each measurement scale", "Select association, comparison, prediction, or synthesis methods after the design is fixed", "Run sensitivity analyses for important assumptions"];
   const ethicsConsiderations = isAiDiagnostic && question.dataType === "Mammography images"
-    ? ["Obtain the permissions and governance approvals required for patient imaging data.", "Protect images and linked clinical labels from re-identification; define access, retention, and sharing.", "Assess label quality, class balance, device/site shift, and subgroup performance before interpreting diagnostic claims.", "Clarify whether the intended use is research-only or could influence clinical decisions.", "Plan communication of limitations, false negatives, false positives, and incidental findings."]
+    ? ["Obtain the permissions and governance approvals required for patient imaging data.", "Protect images and linked clinical labels from re-identification; define access, retention, and sharing policies."]
     : isAiDiagnostic && question.dataType === "Speech or voice recordings"
-      ? ["Obtain explicit consent for recording, storage, reuse, and possible voice identifiability.", "Minimize linked health and demographic data and control access to raw audio.", "Assess language, accent, age, sex, disability, and device-related performance differences.", "Define how diagnostic errors could affect participants and avoid implying clinical readiness without validation.", "Document deletion, de-identification, transcription, and data-sharing procedures."]
+      ? ["Obtain explicit consent for recording, storage, reuse, and possible voice identifiability.", "Minimize linked health and demographic data and control access to raw audio."]
       : isMarineEcology
-        ? ["Obtain site access, collection, wildlife, vessel, and environmental permits where required.", "Prevent sample contamination and document chain of custody for microplastic analysis.", "Minimize disturbance to organisms and habitats and define safe handling of contaminants.", "Predefine site selection and reporting so pollution burden is not selectively represented.", "State data, location, and ecological-risk limitations when sharing results."]
-        : [`Consent and participant information must match the risks of researching ${topic}.`, "Collect the minimum identifiable or sensitive data needed for the question.", `Check whether ${population.toLowerCase()} requires additional safeguards or accessible study materials.`, "Define secure storage, access, retention, deletion, and data-sharing boundaries.", "Obtain the institutional, legal, or governance review required in the study setting."];
+        ? ["Obtain site access, collection, wildlife, vessel, and environmental permits where required.", "Prevent sample contamination and document chain of custody for microplastic analysis."]
+        : [`Consent and participant information must match the risks of researching ${topic}.`, "Collect the minimum identifiable or sensitive data needed for the question.", `Check whether ${population} or study-system governance requires additional approvals.`];
   const roadmap: RoadmapItem[] = [
-    { stepId: "research-question", title: "Research question", focus: `Preserve the question “${question.originalIdea}” and test whether the objective—${question.researchObjective}—is specific enough.`, actions: [`Define ${topic} and the intended ${question.outcome.toLowerCase()} in operational terms`, `Resolve these before collection: ${question.clarifications.length ? question.clarifications.join(", ") : "protocol, comparison, and timing"}`], evidenceAnchor: anchor },
-    { stepId: "planning", title: "Planning", focus: `Set boundaries for ${topic} in ${population.toLowerCase()} using ${question.dataType.toLowerCase()}.`, actions: [`Write eligibility and exclusion criteria for ${population.toLowerCase()}`, `Choose the smallest useful sample and define ${question.outcome.toLowerCase()} before data collection`], evidenceAnchor: anchor },
-    { stepId: "literature-review", title: "Literature search", focus: `Search ${domain} and ${question.subdomain} sources using the complete representation: ${question.keyConcepts.slice(0, 5).join(", ")}.`, actions: [`Screen the ${literature.length} retrieved records into the four relevance tiers`, "Record inclusion decisions, provider names, search dates, and full-text availability"], evidenceAnchor: anchor },
-    { stepId: "methodology", title: "Relevant evidence and gaps", focus: `${evidenceNote} Compare evidence for ${question.researchTask.toLowerCase()} using ${question.dataType.toLowerCase()}.`, actions: ["Compare designs, reference standards, measures, and populations in the original sources", "Write a potential gap with its evidence count and verification caveat"], evidenceAnchor: anchor },
-    { stepId: "instruments", title: "Methodology / study design", focus: `Choose a design that can answer the ${question.researchTask.toLowerCase()} question about ${topic} with ${question.dataType.toLowerCase()}.`, actions: [`Define the comparison, reference standard, or sampling gradient for ${question.outcome.toLowerCase()}`, `Pre-specify the primary outcome, timing, and quality checks for ${question.dataType.toLowerCase()}`], evidenceAnchor: anchor },
-    { stepId: "ethics", title: "Instruments / data requirements", focus: `Select valid, feasible measures for ${population.toLowerCase()} and the ${question.dataType.toLowerCase()} workflow.`, actions: [`Verify the primary ${question.outcome.toLowerCase()} measure against original validation evidence`, `Document acquisition, annotation, assay, recording, or sampling requirements for ${question.dataType.toLowerCase()}`], evidenceAnchor: anchor },
-    { stepId: "data-collection", title: "Ethics and data collection", focus: `Plan responsible collection of ${question.dataType.toLowerCase()} for ${topic}.`, actions: [`Identify consent, privacy, permits, contamination, or data-governance needs relevant to ${question.dataType.toLowerCase()}`, "Define recruitment or site selection, storage, quality checks, and missing-data handling"], evidenceAnchor: anchor },
-    { stepId: "data-analysis", title: "Analysis", focus: `Match the ${question.researchTask.toLowerCase()} analysis to ${question.dataType.toLowerCase()}, ${question.outcome.toLowerCase()}, and the evidence gap for ${topic}.`, actions: ["Create a variable map with the sampling or participant unit", "Write a prespecified descriptive and inferential analysis plan with assumptions and sensitivity checks"], evidenceAnchor: anchor },
-    { stepId: "manuscript-writing", title: "Writing", focus: `Write the contribution around “${question.originalIdea}”, the retrieved evidence, and what remains uncertain about ${topic}.`, actions: ["Separate retrieved findings, potential gaps, and MIDAS planning guidance", `Report how ${question.dataType.toLowerCase()} were collected or evaluated and state generalizability limits`], evidenceAnchor: anchor },
-    { stepId: "journal-selection", title: "Journal selection", focus: `Shortlist evidence-backed venues for ${question.subdomain} work on ${topic}; do not treat a match score as acceptance probability.`, actions: ["Check aims, scope, article type, indexing, and current author guidance", "Compare each venue with the original source evidence shown in the journal cards"], evidenceAnchor: anchor },
-    { stepId: "publication", title: "Publication", focus: `Prepare a transparent submission answering “${question.originalIdea}” with traceable ${question.dataType.toLowerCase()} methods and limitations.`, actions: ["Confirm references, data/code statements, ethics statements, reporting guidelines, and disclosures", "Use the selected journal’s current submission instructions and retain the submission record"], evidenceAnchor: anchor },
+    { stepId: "research-question", title: "Research question", focus: `Preserve the question “${question.originalIdea}” and test whether the objective—${question.researchObjective}—is specific enough for a literature search.`, actions: ["Refine the outcome and exposure if needed"], evidenceAnchor: "" },
+    { stepId: "planning", title: "Planning", focus: `Set boundaries for ${topic} in ${population.toLowerCase()} using ${question.dataType.toLowerCase()}.`, actions: ["Write eligibility and exclusion criteria"], evidenceAnchor: "" },
+    { stepId: "literature-review", title: "Literature search", focus: `Search ${domain} and ${question.subdomain} sources using the complete representation: ${question.keyConcepts.slice(0, 5).join(", ")}.`, actions: ["Run searches across providers and deduplicate results"], evidenceAnchor: "" },
+    { stepId: "methodology", title: "Relevant evidence and gaps", focus: `${evidenceNote} Compare evidence for ${question.researchTask.toLowerCase()} using ${question.dataType.toLowerCase()}.`, actions: ["Screen titles and abstracts against inclusion criteria"], evidenceAnchor: "" },
+    { stepId: "instruments", title: "Methodology / study design", focus: `Choose a design that can answer the ${question.researchTask.toLowerCase()} question about ${topic} with ${question.dataType.toLowerCase()}.`, actions: ["Select primary and secondary measures"], evidenceAnchor: "" },
+    { stepId: "ethics", title: "Instruments / data requirements", focus: `Select valid, feasible measures for ${population.toLowerCase()} and the ${question.dataType.toLowerCase()} workflow.`, actions: ["Document consent and governance plans"], evidenceAnchor: "" },
+    { stepId: "data-collection", title: "Ethics and data collection", focus: `Plan responsible collection of ${question.dataType.toLowerCase()} for ${topic}.`, actions: ["Identify consent, privacy, and storage plans"], evidenceAnchor: "" },
+    { stepId: "data-analysis", title: "Analysis", focus: `Match the ${question.researchTask.toLowerCase()} analysis to ${question.dataType.toLowerCase()}, ${question.outcome.toLowerCase()}, and the chosen variables.`, actions: ["Predefine primary analysis and sensitivity checks"], evidenceAnchor: "" },
+    { stepId: "manuscript-writing", title: "Writing", focus: `Write the contribution around “${question.originalIdea}”, the retrieved evidence, and what remains uncertain about ${topic}.`, actions: ["Draft methods and limitations clearly"], evidenceAnchor: "" },
+    { stepId: "journal-selection", title: "Journal selection", focus: `Shortlist evidence-backed venues for ${question.subdomain} work on ${topic}; do not treat a match score as acceptance probability.`, actions: ["Shortlist 3 candidate journals"], evidenceAnchor: "" },
+    { stepId: "publication", title: "Publication", focus: `Prepare a transparent submission answering “${question.originalIdea}” with traceable ${question.dataType.toLowerCase()} methods and declared limitations.`, actions: ["Follow reporting guidelines appropriate to the design"], evidenceAnchor: "" },
   ];
 
   return {
@@ -1175,9 +1176,9 @@ function buildGuidance(question: ResearchQuestion, domain: Domain, literature: L
     },
     analysis: {
       variables,
-      descriptive: ["Participant or record flow", "Distribution of exposures, interventions, and outcomes", "Missing-data and quality summary", "Comparison of included and excluded records where appropriate"],
+      descriptive: ["Participant or record flow", "Distribution of exposures, interventions, and outcomes", "Missing-data and quality summary", "Comparison of included and excluded records where relevant"],
       statistical: analysisStatistical,
-      note: `No final statistical method is prescribed. A qualified researcher should review the ${question.researchTask.toLowerCase()} plan for ${question.dataType.toLowerCase()} against the design, measurement validity, sampling, missingness, and assumptions before interpretation.`,
+      note: `No final statistical method is prescribed. A qualified researcher should review the ${question.researchTask.toLowerCase()} plan for ${question.dataType.toLowerCase()} against the described variables and study design.`,
     },
     journals: journalRecommendations.journals,
     journalSelectionNote: journalRecommendations.note,
@@ -1235,7 +1236,7 @@ export async function processResearchIdea(idea: string): Promise<ResearchProcess
     ...guidance,
     searchStrategy: {
       keywords: question.keywords,
-      booleanQuery: question.keywords.length > 1 ? question.keywords.map((keyword) => `"${keyword}"`).join(" AND ") : `"${question.topic}"`,
+      booleanQuery: question.keywords.length > 1 ? question.keywords.map((keyword) => `\"${keyword}\"`).join(" AND ") : `\"${question.topic}\"`,
       databases: providers,
     },
   };
